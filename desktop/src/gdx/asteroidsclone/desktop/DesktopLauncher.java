@@ -7,7 +7,7 @@ import gdx.asteroidsclone.Game;
 public class DesktopLauncher {
 	public static void main (String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Asteroids clone";
+		config.title = "Asteroids Clone";
 		config.width = 1600;
 		config.height = 800;
 		config.resizable = false;

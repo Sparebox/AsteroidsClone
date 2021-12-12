@@ -4,29 +4,33 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import gdx.asteroidsclone.managers.GameKeys;
+import gdx.asteroidsclone.managers.InputProcessor;
 
 public class Game extends ApplicationAdapter {
 
 	public static int width;
 	public static int height;
-
-	public static OrthographicCamera cam;
+	public static OrthographicCamera camera;
 
 	@Override
 	public void create () {
 		width = Gdx.graphics.getWidth();
 		height = Gdx.graphics.getWidth();
 
-		cam = new OrthographicCamera(width, height);
-		cam.translate(width/2f, height/2f);
-		cam.update();
+		camera = new OrthographicCamera(width, height);
+		camera.translate(width/2f, height/2f);
+		camera.update();
+
+		Gdx.input.setInputProcessor(new InputProcessor());
 	}
 
 	@Override
 	public void render () {
-		// Clears screen to black
-		Gdx.gl.glClearColor(0,0,0,1);
+		Gdx.gl.glClearColor(0,0,0,1); // Clears screen to black
 		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+
+		GameKeys.update();
 	}
 
 	@Override
