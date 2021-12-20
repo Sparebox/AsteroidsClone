@@ -1,10 +1,11 @@
-package gdx.asteroidsclone.entities;
+package gdx.asteroidsclone.entities.particles;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import gdx.asteroidsclone.entities.Entity;
 
 public class Bullet extends Entity {
 
-    public Bullet() {
+    public Bullet(int x, int y) {
 
     }
 

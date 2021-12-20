@@ -18,6 +18,11 @@ public class Asteroid extends Entity {
 
     }
 
+    @Override
+    public void dispose() {
+
+    }
+
     enum AsteroidType {
         SMALL, MEDIUM, LARGE;
     }

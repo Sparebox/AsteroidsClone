@@ -1,5 +1,8 @@
 package gdx.asteroidsclone.utils;
 
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Vector2;
+
 public class Utils {
 
     public static final float PPM = 8f; // Pixels per meter
@@ -21,4 +24,15 @@ public class Utils {
     public static int toPixel(float meters) { // Converts meters to pixels
         return (int) (meters * PPM);
     }
+
+    /**
+     * Inverts a vector's direction
+     * @param vec the vector to be inverted
+     * @return a new inverted vector
+     */
+    public static Vector2 invert(Vector2 vec) {
+        Vector2 newVec = vec.cpy();
+        return newVec.mul(new Matrix3(new float[] {-1f,0f,0f,0f,-1f,0f,0f,0f,-1f}));
+    }
+
 }
