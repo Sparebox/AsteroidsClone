@@ -3,6 +3,7 @@ package gdx.asteroidsclone.entities;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -13,6 +14,7 @@ import gdx.asteroidsclone.utils.Utils;
 public class Asteroid extends Entity {
 
     private static final int VERTICES = 7;
+    private static final int INIT_VEL = 20; // Meters per second
 
     private Polygon shape;
     private AsteroidType type;
@@ -24,6 +26,7 @@ public class Asteroid extends Entity {
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.body = GameScreen.world.createBody(this.bd);
+        this.body.setLinearVelocity(new Vector2().setToRandomDirection().scl(INIT_VEL));
 
         this.ps = new PolygonShape();
         this.ps.set(calculateVertices(false, seed));

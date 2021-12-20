@@ -9,7 +9,8 @@ public class AsteroidManager {
 
     private GameScreen gameScreen;
     private int asteroidTimer;
-    private long lastTime;
+    private int asteroidCount;
+    private long lastTime = System.currentTimeMillis();
     private Level currentLevel = Level.LEVEL1;
 
     public AsteroidManager(GameScreen gameScreen) {
@@ -18,25 +19,36 @@ public class AsteroidManager {
 
     public void update() {
         float diff = System.currentTimeMillis() - lastTime;
-        lastTime = System.currentTimeMillis();
-        if(diff > 1000)
+        if(diff > 1000) {
+            lastTime = System.currentTimeMillis();
             asteroidTimer++;
+        }
         if(asteroidTimer > ASTEROID_INTERVAL) {
-            spawnAsteroid();
+            if(asteroidCount < currentLevel.ASTEROID_COUNT)
+                spawnAsteroid();
             asteroidTimer = 0;
         }
     }
 
     private void spawnAsteroid() {
+        boolean onX = Entity.random.nextBoolean();
+        int x = Entity.random.nextInt(Main.INSTANCE.getScreenWidth() + 1);
+        int y = Entity.random.nextInt(Main.INSTANCE.getScreenHeight() + 1);
+        if(onX)
+            y = 0;
+        else
+            x = 0;
         switch(currentLevel) {
             case LEVEL1:
-                gameScreen.getEntitiesToAdd().add(new Asteroid(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2, currentLevel.TYPE));
+                gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
+                System.out.println("Spawned");
                 break;
             case LEVEL2:
                 break;
             case LEVEl3:
                 break;
         }
+        asteroidCount++;
     }
 }
 

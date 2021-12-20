@@ -49,8 +49,8 @@ public class GameScreen extends ScreenAdapter {
         this.entitiesToAdd = new HashSet<>();
         this.player = new Player(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2);
         this.entities.add(player);
-        Asteroid ast = new Asteroid(Main.INSTANCE.getScreenWidth() / 2 + 50, Main.INSTANCE.getScreenHeight() / 2 - 50, AsteroidType.SMALL);
-        this.entities.add(ast);
+//        Asteroid ast = new Asteroid(Main.INSTANCE.getScreenWidth() / 2 + 50, Main.INSTANCE.getScreenHeight() / 2 - 50, AsteroidType.SMALL);
+//        this.entities.add(ast);
     }
 
     private void update() {

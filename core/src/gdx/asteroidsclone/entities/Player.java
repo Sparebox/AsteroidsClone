@@ -2,6 +2,7 @@ package gdx.asteroidsclone.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -105,7 +106,9 @@ public class Player extends Entity {
         float rot = body.getAngle() * MathUtils.radiansToDegrees;
         sr.translate(x, y,0);
         sr.rotate(0,0,1,rot);
+        sr.setColor(Color.YELLOW);
         sr.polygon(shape.getVertices());
+        sr.setColor(Color.WHITE);
         sr.identity();
     }
 

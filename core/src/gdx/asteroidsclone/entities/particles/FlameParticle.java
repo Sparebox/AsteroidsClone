@@ -18,7 +18,7 @@ public class FlameParticle extends Entity {
 
     private static final int RADIUS = 5; // In pixels
     private static final float TIME_TO_LIVE = 0.5f; // Seconds
-    private static final float INIT_VEL = 50f; // Meters per second
+    private static final int INIT_VEL = 50; // Meters per second
 
     private float lifeTimer;
     private long lastTime;
