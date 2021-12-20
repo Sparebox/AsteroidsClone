@@ -43,6 +43,7 @@ public class FlameParticle extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.TRAIL.BIT;
+        this.fd.filter.maskBits = ContactType.TRAIL.BIT;
 
         this.body.createFixture(this.fd);
         this.cs.dispose();

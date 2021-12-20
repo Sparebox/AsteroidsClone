@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -18,11 +17,12 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class Player extends Entity {
 
-    private static final float SPEED = Utils.toPixel(500f);
-    private static final float TURNING_RATE = Utils.toPixel(300f);
+    private static final float THRUST = 2e3f; // In newtons
+    private static final float TURNING_TORQUE = 1e3f; // In newton-meters
     private static final float DAMPENING = 1f;
     private static final float PARTICLE_RATE = 1f;
     private static final float FIRE_RATE = 0.1f;
+    private static final int PLAYER_SCALE = 30; // In pixels
 
     private Polygon shape;
     private int particleOutputTimer;
@@ -44,8 +44,7 @@ public class Player extends Entity {
         this.fd.density = 1f;
         this.fd.friction = 0f;
         this.fd.restitution = 0f;
-        this.fd.filter.categoryBits = ContactType.PLAYER.BIT;
-        this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
+        this.fd.filter.groupIndex = 1;
 
         this.body.createFixture(this.fd);
         ps.dispose();
@@ -61,7 +60,7 @@ public class Player extends Entity {
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
         float angle = body.getAngle() + MathUtils.PI / 2;
-        Vector2 thrustVector = new Vector2(SPEED * MathUtils.cos(angle), SPEED * MathUtils.sin(angle));
+        Vector2 thrustVector = new Vector2(THRUST * MathUtils.cos(angle), THRUST * MathUtils.sin(angle));
         Vector2 inverseDir = Utils.invert(thrustVector).setLength(15f);
         Vector2 bulletVector = thrustVector.cpy().setLength(25f);
 
@@ -74,9 +73,9 @@ public class Player extends Entity {
             }
         }
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            body.applyTorque(TURNING_RATE,true);
+            body.applyTorque(TURNING_TORQUE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            body.applyTorque(-TURNING_RATE,true);
+            body.applyTorque(-TURNING_TORQUE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             fireRateTimer++;
             if(fireRateTimer > 1f / FIRE_RATE) {
@@ -112,7 +111,7 @@ public class Player extends Entity {
 
     private float[] calculateVertices() {
         float[] vertices = new float[8];
-        float scale = Utils.toPixel(5);
+        float scale = PLAYER_SCALE;
         vertices[0] = scale * MathUtils.cos(MathUtils.PI / 2);
         vertices[1] = scale * MathUtils.sin(MathUtils.PI / 2);
         vertices[2] = scale * MathUtils.cos(MathUtils.PI + MathUtils.PI / 4);
@@ -126,7 +125,7 @@ public class Player extends Entity {
 
     private float[] calculateHitbox() {
         float[] vertices = new float[6];
-        float scale = Utils.toWorld(50);
+        float scale = Utils.toWorld(PLAYER_SCALE);
         vertices[0] = scale * MathUtils.cos(MathUtils.PI / 2);
         vertices[1] = scale * MathUtils.sin(MathUtils.PI / 2);
         vertices[2] = scale * MathUtils.cos(MathUtils.PI + MathUtils.PI / 4);

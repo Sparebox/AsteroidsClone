@@ -11,10 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.asteroidsclone.Main;
-import gdx.asteroidsclone.entities.AsteroidManager;
-import gdx.asteroidsclone.entities.Entity;
-import gdx.asteroidsclone.entities.PhysObstacle;
-import gdx.asteroidsclone.entities.Player;
+import gdx.asteroidsclone.entities.*;
 import gdx.asteroidsclone.utils.Utils;
 
 import java.util.HashSet;
@@ -52,6 +49,8 @@ public class GameScreen extends ScreenAdapter {
         this.entitiesToAdd = new HashSet<>();
         this.player = new Player(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2);
         this.entities.add(player);
+        Asteroid ast = new Asteroid(Main.INSTANCE.getScreenWidth() / 2 + 50, Main.INSTANCE.getScreenHeight() / 2 - 50, AsteroidType.SMALL);
+        this.entities.add(ast);
     }
 
     private void update() {

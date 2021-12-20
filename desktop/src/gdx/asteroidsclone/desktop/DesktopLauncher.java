@@ -9,8 +9,8 @@ public class DesktopLauncher {
 	public static void main (String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Asteroids Clone";
-		config.width = 1600;
-		config.height = 900;
+		config.width = 1920;
+		config.height = 1080;
 		config.foregroundFPS = 60;
 		config.resizable = false;
 		config.useGL30 = true;

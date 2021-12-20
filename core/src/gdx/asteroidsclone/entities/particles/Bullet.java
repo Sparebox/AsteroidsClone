@@ -19,7 +19,7 @@ import java.util.HashSet;
 public class Bullet extends Entity {
 
     private static int bulletCount = 0;
-    private static final float INIT_VEL = 100f; // Meters per second
+    private static final float INIT_VEL = 200f; // Meters per second
     private static final int RADIUS = 2; // In pixels
 
     public Bullet(int x, int y, Entity player) {
@@ -41,8 +41,6 @@ public class Bullet extends Entity {
         this.fd.density = 1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
-        this.fd.filter.categoryBits = ContactType.BULLET.BIT;
-        this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
 
         this.body.createFixture(this.fd);
         this.cs.dispose();
