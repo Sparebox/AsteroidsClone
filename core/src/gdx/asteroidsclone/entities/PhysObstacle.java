@@ -45,9 +45,4 @@ public class PhysObstacle extends Entity {
         int y = Utils.toPixel(body.getPosition().y - height / 2);
         sr.rect(x, y, Utils.toPixel(width), Utils.toPixel(height));
     }
-
-    @Override
-    public void dispose() {
-
-    }
 }

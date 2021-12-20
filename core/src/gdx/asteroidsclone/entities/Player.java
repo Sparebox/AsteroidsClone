@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import gdx.asteroidsclone.Main;
+import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.entities.particles.FlameParticle;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
@@ -20,9 +21,12 @@ public class Player extends Entity {
     private static final float SPEED = Utils.toPixel(500f);
     private static final float TURNING_RATE = Utils.toPixel(300f);
     private static final float DAMPENING = 1f;
+    private static final float PARTICLE_RATE = 1f;
+    private static final float FIRE_RATE = 0.1f;
+
     private Polygon shape;
-    private float hitboxWidth = Utils.toWorld(50);
-    private float hitboxHeight = Utils.toWorld(50);
+    private int particleOutputTimer;
+    private int fireRateTimer;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -57,17 +61,29 @@ public class Player extends Entity {
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
         float angle = body.getAngle() + MathUtils.PI / 2;
-        Vector2 direction = new Vector2(SPEED * MathUtils.cos(angle), SPEED * MathUtils.sin(angle));
-        Vector2 inverseDir = Utils.invert(direction).setLength(20f);
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            body.applyForceToCenter(direction, true);
-            gameScreen.getEntitiesToAdd().add(new FlameParticle((int) (x + inverseDir.x), (int) (y + inverseDir.y), this));
-        }
+        Vector2 thrustVector = new Vector2(SPEED * MathUtils.cos(angle), SPEED * MathUtils.sin(angle));
+        Vector2 inverseDir = Utils.invert(thrustVector).setLength(15f);
+        Vector2 bulletVector = thrustVector.cpy().setLength(25f);
 
+        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            body.applyForceToCenter(thrustVector, true);
+            particleOutputTimer++;
+            if(particleOutputTimer > 1f / PARTICLE_RATE) {
+                gameScreen.getEntitiesToAdd().add(new FlameParticle((int) (x + inverseDir.x), (int) (y + inverseDir.y), this));
+                particleOutputTimer = 0;
+            }
+        }
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
             body.applyTorque(TURNING_RATE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
             body.applyTorque(-TURNING_RATE,true);
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            fireRateTimer++;
+            if(fireRateTimer > 1f / FIRE_RATE) {
+                gameScreen.getEntitiesToAdd().add(new Bullet((int) (x + bulletVector.x), (int) (y + bulletVector.y), this));
+                fireRateTimer = 0;
+            }
+        }
 
         if(x > Main.INSTANCE.getScreenWidth()) {
             body.setTransform(0f, body.getPosition().y,body.getAngle());
@@ -92,11 +108,6 @@ public class Player extends Entity {
         sr.rotate(0,0,1,rot);
         sr.polygon(shape.getVertices());
         sr.identity();
-    }
-
-    @Override
-    public void dispose() {
-        GameScreen.world.destroyBody(this.body);
     }
 
     private float[] calculateVertices() {

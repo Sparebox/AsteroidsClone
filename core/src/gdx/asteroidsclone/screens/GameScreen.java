@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.asteroidsclone.Main;
+import gdx.asteroidsclone.entities.AsteroidManager;
 import gdx.asteroidsclone.entities.Entity;
 import gdx.asteroidsclone.entities.PhysObstacle;
 import gdx.asteroidsclone.entities.Player;
@@ -33,6 +34,7 @@ public class GameScreen extends ScreenAdapter {
     private Player player;
     private Camera camera;
     private ShapeRenderer sr;
+    private AsteroidManager asteroidManager;
     private Box2DDebugRenderer debugRenderer;
 
     public GameScreen(Camera camera) {
@@ -44,6 +46,7 @@ public class GameScreen extends ScreenAdapter {
         this.sr.setProjectionMatrix(camera.combined);
         world = new World(new Vector2(0, 0), false);
         this.debugRenderer = new Box2DDebugRenderer();
+        this.asteroidManager = new AsteroidManager(this);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
@@ -58,7 +61,10 @@ public class GameScreen extends ScreenAdapter {
         }
         camera.update();
         if(!entitiesToDelete.isEmpty()) {
-            entities.removeAll(entitiesToDelete);
+            for(Entity e : entitiesToDelete) {
+                world.destroyBody(e.getBody());
+                entities.remove(e);
+            }
             entitiesToDelete.clear();
         }
         if(!entitiesToAdd.isEmpty()) {
@@ -68,7 +74,7 @@ public class GameScreen extends ScreenAdapter {
         for(Entity e : entities) {
             e.update();
         }
-
+        asteroidManager.update();
     }
 
     @Override
@@ -88,10 +94,15 @@ public class GameScreen extends ScreenAdapter {
     public void dispose() {
         sr.dispose();
         debugRenderer.dispose();
-        world.dispose();
         for(Entity e : entities) {
             e.dispose();
         }
+        for(Entity e : entitiesToDelete) {
+            world.destroyBody(e.getBody());
+            entities.remove(e);
+        }
+        entitiesToDelete.clear();
+        world.dispose();
     }
 
     public Set<Entity> getEntities() {

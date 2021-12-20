@@ -23,7 +23,9 @@ public abstract class Entity {
 
     public abstract void render(ShapeRenderer sr);
 
-    public abstract void dispose();
+    public void dispose() {
+        gameScreen.getEntitiesToDelete().add(this);
+    }
 
     public Body getBody() {
         return body;

@@ -16,7 +16,7 @@ import java.util.Random;
 
 public class FlameParticle extends Entity {
 
-    private static final float RADIUS = 5f; // In pixels
+    private static final int RADIUS = 5; // In pixels
     private static final float TIME_TO_LIVE = 0.5f; // Seconds
     private static final float INIT_VEL = 50f; // Meters per second
 
@@ -65,11 +65,5 @@ public class FlameParticle extends Entity {
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
         sr.circle(x, y, RADIUS);
-    }
-
-    @Override
-    public void dispose() {
-        GameScreen.world.destroyBody(body);
-        gameScreen.getEntitiesToDelete().add(this);
     }
 }
