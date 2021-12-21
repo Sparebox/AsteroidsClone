@@ -48,7 +48,7 @@ public class GameScreen extends ScreenAdapter {
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
         this.player = new Player(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2);
-        this.entities.add(player);
+        this.entitiesToAdd.add(player);
     }
 
     private void update() {
@@ -65,7 +65,16 @@ public class GameScreen extends ScreenAdapter {
             entitiesToDelete.clear();
         }
         if(!entitiesToAdd.isEmpty()) {
-            entities.addAll(entitiesToAdd);
+            for(Entity e : entitiesToAdd) {
+                e.setBody(world.createBody(e.getBd()));
+                e.getBody().createFixture(e.getFd());
+                e.getBody().setUserData(e);
+                if(e.getCs() != null)
+                    e.getCs().dispose();
+                else if(e.getPs() != null)
+                    e.getPs().dispose();
+                entities.add(e);
+            }
             entitiesToAdd.clear();
         }
         for(Entity e : entities) {

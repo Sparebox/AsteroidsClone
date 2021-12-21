@@ -50,4 +50,20 @@ public abstract class Entity {
     public void setFd(FixtureDef fd) {
         this.fd = fd;
     }
+
+    public PolygonShape getPs() {
+        return ps;
+    }
+
+    public void setPs(PolygonShape ps) {
+        this.ps = ps;
+    }
+
+    public CircleShape getCs() {
+        return cs;
+    }
+
+    public void setCs(CircleShape cs) {
+        this.cs = cs;
+    }
 }

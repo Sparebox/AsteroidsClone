@@ -15,6 +15,7 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class Asteroid extends Entity {
 
+    private static final int PARTICLES = 10; // Particle count when hit
     private static final int VERTICES = 7;
     private static final int INIT_VEL = 20; // Meters per second
 
@@ -22,14 +23,12 @@ public class Asteroid extends Entity {
     private AsteroidType type;
 
     public Asteroid(int x, int y, AsteroidType type) {
-        long seed = System.currentTimeMillis();
+        long seed = System.nanoTime();
         this.type = type;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
-        this.body = GameScreen.world.createBody(this.bd);
-        this.body.setUserData(this);
-        this.body.setLinearVelocity(new Vector2().setToRandomDirection().scl(INIT_VEL));
+        this.bd.linearVelocity.set(new Vector2().setToRandomDirection().scl(INIT_VEL));
 
         this.ps = new PolygonShape();
         this.ps.set(calculateVertices(false, seed));
@@ -40,10 +39,7 @@ public class Asteroid extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.ASTEROID.BIT;
         this.fd.filter.maskBits = (short) (ContactType.PLAYER.BIT | ContactType.BULLET.BIT |
-        ContactType.ASTEROID.BIT | ContactType.TRAIL.BIT);
-
-        this.body.createFixture(this.fd);
-        ps.dispose();
+        ContactType.ASTEROID.BIT | ContactType.TRAIL.BIT | ContactType.DEBRIS.BIT);
 
         shape = new Polygon();
         shape.setOrigin(x, y);
@@ -79,23 +75,23 @@ public class Asteroid extends Entity {
     public void hit() {
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
-        //System.out.println(gameScreen.getEntitiesToAdd().add(new));
-
-//        switch(type) {
-//            case SMALL:
-//                dispose();
-//                break;
-//            case MEDIUM:
-//                for(int i = 0; i < 2; i++)
-//                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.SMALL));
-//                dispose();
-//                break;
-//            case LARGE:
-//                for(int i = 0; i < 2; i++)
-//                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.MEDIUM));
-//                dispose();
-//                break;
-//        }
+        for(int i = 0; i < PARTICLES; i++)
+            gameScreen.getEntitiesToAdd().add(new Debris(x ,y));
+        switch(type) {
+            case SMALL:
+                dispose();
+                break;
+            case MEDIUM:
+                for(int i = 0; i < 2; i++)
+                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.SMALL));
+                dispose();
+                break;
+            case LARGE:
+                for(int i = 0; i < 2; i++)
+                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.MEDIUM));
+                dispose();
+                break;
+        }
     }
 
     private float[] calculateVertices(boolean inPixels, long seed) {

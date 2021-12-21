@@ -14,21 +14,18 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class Bullet extends Entity {
 
-    private static int bulletCount = 0;
+    public static int bulletCount = 0;
+
     private static final float INIT_VEL = 200f; // Meters per second
     private static final int RADIUS = 2; // In pixels
 
     public Bullet(int x, int y, Entity player) {
-        if(bulletCount > 2)
-            return;
         bulletCount++;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
-        this.body = GameScreen.world.createBody(this.bd);
-        this.body.setUserData(this);
         float angle = player.getBody().getAngle() + MathUtils.PI / 2;
-        this.body.setLinearVelocity(new Vector2(INIT_VEL * MathUtils.cos(angle), INIT_VEL * MathUtils.sin(angle)));
+        this.bd.linearVelocity.set(new Vector2(INIT_VEL * MathUtils.cos(angle), INIT_VEL * MathUtils.sin(angle)));
 
         this.cs = new CircleShape();
         this.cs.setRadius(Utils.toWorld(RADIUS));
@@ -40,9 +37,6 @@ public class Bullet extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.BULLET.BIT;
         this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
-
-        this.body.createFixture(this.fd);
-        this.cs.dispose();
     }
 
     @Override

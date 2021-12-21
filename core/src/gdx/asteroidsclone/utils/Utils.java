@@ -32,7 +32,6 @@ public class Utils {
      */
     public static Vector2 invert(Vector2 vec) {
         Vector2 newVec = vec.cpy();
-        //return newVec.mul(new Matrix3(new float[] {-1f,0f,0f,0f,-1f,0f,0f,0f,-1f}));
         return newVec.scl(-1);
     }
 

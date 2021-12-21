@@ -12,9 +12,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Bullet;
-import gdx.asteroidsclone.entities.particles.FlameParticle;
+import gdx.asteroidsclone.entities.particles.PlayerTrail;
 import gdx.asteroidsclone.physics.ContactType;
-import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
 
 public class Player extends Entity {
@@ -38,8 +37,6 @@ public class Player extends Entity {
         this.bd.linearDamping = DAMPING;
         this.bd.angularDamping = ANGULAR_DAMPING;
 
-        this.body = GameScreen.world.createBody(this.bd);
-
         this.ps = new PolygonShape();
         this.ps.set(calculateHitbox());
         this.fd = new FixtureDef();
@@ -49,9 +46,6 @@ public class Player extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.PLAYER.BIT;
         this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
-
-        this.body.createFixture(this.fd);
-        ps.dispose();
 
         shape = new Polygon();
         shape.setOrigin(x, y);
@@ -72,7 +66,7 @@ public class Player extends Entity {
             body.applyForceToCenter(thrustVector, true);
             particleOutputTimer++;
             if(particleOutputTimer > 1f / PARTICLE_RATE) {
-                gameScreen.getEntitiesToAdd().add(new FlameParticle((int) (x + inverseDir.x), (int) (y + inverseDir.y), this));
+                gameScreen.getEntitiesToAdd().add(new PlayerTrail((int) (x + inverseDir.x), (int) (y + inverseDir.y), this));
                 particleOutputTimer = 0;
             }
         }
@@ -82,7 +76,7 @@ public class Player extends Entity {
             body.applyTorque(-TURNING_TORQUE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             fireRateTimer++;
-            if(fireRateTimer > 1f / FIRE_RATE) {
+            if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
                 gameScreen.getEntitiesToAdd().add(new Bullet((int) (x + bulletVector.x), (int) (y + bulletVector.y), this));
                 fireRateTimer = 0;
             }

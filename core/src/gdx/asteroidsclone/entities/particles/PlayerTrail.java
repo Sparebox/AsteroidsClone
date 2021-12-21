@@ -8,10 +8,9 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import gdx.asteroidsclone.physics.ContactType;
 import gdx.asteroidsclone.entities.Entity;
-import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
 
-public class FlameParticle extends Entity {
+public class PlayerTrail extends Entity {
 
     private static final int RADIUS = 5; // In pixels
     private static final float TIME_TO_LIVE = 0.5f; // Seconds
@@ -20,16 +19,15 @@ public class FlameParticle extends Entity {
     private float lifeTimer;
     private long lastTime;
 
-    public FlameParticle(int x, int y, Entity player) {
+    public PlayerTrail(int x, int y, Entity player) {
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
-        this.body = GameScreen.world.createBody(this.bd);
         float angle = player.getBody().getAngle() - MathUtils.PI / 2;
         int sign = random.nextInt(2) == 1 ? -1 : 1;
         float rand = sign * random.nextFloat() * (MathUtils.PI / 4);
         angle += rand;
-        this.body.setLinearVelocity(new Vector2(INIT_VEL * MathUtils.cos(angle), INIT_VEL * MathUtils.sin(angle)));
+        this.bd.linearVelocity.set(new Vector2(INIT_VEL * MathUtils.cos(angle), INIT_VEL * MathUtils.sin(angle)));
 
         this.cs = new CircleShape();
         this.cs.setRadius(Utils.toWorld(RADIUS));
@@ -41,9 +39,6 @@ public class FlameParticle extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.TRAIL.BIT;
         this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
-
-        this.body.createFixture(this.fd);
-        this.cs.dispose();
     }
 
     @Override
