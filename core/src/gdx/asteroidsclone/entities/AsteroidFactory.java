@@ -3,17 +3,17 @@ package gdx.asteroidsclone.entities;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.screens.GameScreen;
 
-public class AsteroidManager {
+public class AsteroidFactory {
 
-    private static final int ASTEROID_INTERVAL = 2; // In seconds
+    private static final int ASTEROID_INTERVAL = 4; // In seconds
 
     private GameScreen gameScreen;
     private int asteroidTimer;
     private int asteroidCount;
     private long lastTime = System.currentTimeMillis();
-    private Level currentLevel = Level.LEVEL1;
+    private Level currentLevel = Level.LEVEl3;
 
-    public AsteroidManager(GameScreen gameScreen) {
+    public AsteroidFactory(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
     }
 
@@ -38,18 +38,11 @@ public class AsteroidManager {
             y = 0;
         else
             x = 0;
-        switch(currentLevel) {
-            case LEVEL1:
-                gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
-                System.out.println("Spawned");
-                break;
-            case LEVEL2:
-                break;
-            case LEVEl3:
-                break;
-        }
+        gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
         asteroidCount++;
-    }
+        }
+
 }
+
 
 

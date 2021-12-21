@@ -13,15 +13,17 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.entities.particles.FlameParticle;
+import gdx.asteroidsclone.physics.ContactType;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
 
 public class Player extends Entity {
 
     private static final float THRUST = 2e3f; // In newtons
-    private static final float TURNING_TORQUE = 1e3f; // In newton-meters
-    private static final float DAMPENING = 1f;
-    private static final float PARTICLE_RATE = 1f;
+    private static final float TURNING_TORQUE = 2e3f; // In newton-meters
+    private static final float DAMPING = 1f;
+    private static final float ANGULAR_DAMPING = 5f;
+    private static final float PARTICLE_RATE = 3f;
     private static final float FIRE_RATE = 0.1f;
     private static final int PLAYER_SCALE = 30; // In pixels
 
@@ -33,8 +35,8 @@ public class Player extends Entity {
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
-        this.bd.linearDamping = DAMPENING;
-        this.bd.angularDamping = DAMPENING;
+        this.bd.linearDamping = DAMPING;
+        this.bd.angularDamping = ANGULAR_DAMPING;
 
         this.body = GameScreen.world.createBody(this.bd);
 
@@ -44,8 +46,9 @@ public class Player extends Entity {
         this.fd.shape = ps;
         this.fd.density = 1f;
         this.fd.friction = 0f;
-        this.fd.restitution = 0f;
-        this.fd.filter.groupIndex = 1;
+        this.fd.restitution = 1f;
+        this.fd.filter.categoryBits = ContactType.PLAYER.BIT;
+        this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
 
         this.body.createFixture(this.fd);
         ps.dispose();

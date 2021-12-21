@@ -6,13 +6,12 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.*;
-import gdx.asteroidsclone.utils.Utils;
+import gdx.asteroidsclone.physics.CustomContactListener;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +30,7 @@ public class GameScreen extends ScreenAdapter {
     private Player player;
     private Camera camera;
     private ShapeRenderer sr;
-    private AsteroidManager asteroidManager;
+    private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
 
     public GameScreen(Camera camera) {
@@ -42,15 +41,14 @@ public class GameScreen extends ScreenAdapter {
         this.sr = new ShapeRenderer();
         this.sr.setProjectionMatrix(camera.combined);
         world = new World(new Vector2(0, 0), false);
+        world.setContactListener(new CustomContactListener(this));
         this.debugRenderer = new Box2DDebugRenderer();
-        this.asteroidManager = new AsteroidManager(this);
+        this.asteroidFactory = new AsteroidFactory(this);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
         this.player = new Player(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2);
         this.entities.add(player);
-//        Asteroid ast = new Asteroid(Main.INSTANCE.getScreenWidth() / 2 + 50, Main.INSTANCE.getScreenHeight() / 2 - 50, AsteroidType.SMALL);
-//        this.entities.add(ast);
     }
 
     private void update() {
@@ -73,7 +71,7 @@ public class GameScreen extends ScreenAdapter {
         for(Entity e : entities) {
             e.update();
         }
-        asteroidManager.update();
+        asteroidFactory.update();
     }
 
     @Override
@@ -97,6 +95,8 @@ public class GameScreen extends ScreenAdapter {
             e.dispose();
         }
         for(Entity e : entitiesToDelete) {
+            if(e.getBody() == null)
+                continue;
             world.destroyBody(e.getBody());
             entities.remove(e);
         }

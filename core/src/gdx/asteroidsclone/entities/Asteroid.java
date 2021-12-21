@@ -8,6 +8,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import gdx.asteroidsclone.Main;
+import gdx.asteroidsclone.entities.particles.Debris;
+import gdx.asteroidsclone.physics.ContactType;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
 
@@ -26,6 +28,7 @@ public class Asteroid extends Entity {
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.body = GameScreen.world.createBody(this.bd);
+        this.body.setUserData(this);
         this.body.setLinearVelocity(new Vector2().setToRandomDirection().scl(INIT_VEL));
 
         this.ps = new PolygonShape();
@@ -35,7 +38,9 @@ public class Asteroid extends Entity {
         this.fd.density = 1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
-        this.fd.filter.groupIndex = 1;
+        this.fd.filter.categoryBits = ContactType.ASTEROID.BIT;
+        this.fd.filter.maskBits = (short) (ContactType.PLAYER.BIT | ContactType.BULLET.BIT |
+        ContactType.ASTEROID.BIT | ContactType.TRAIL.BIT);
 
         this.body.createFixture(this.fd);
         ps.dispose();
@@ -48,15 +53,15 @@ public class Asteroid extends Entity {
 
     @Override
     public void update() {
-        if(Utils.toPixel(body.getPosition().x) > Main.INSTANCE.getScreenWidth()) {
-            body.setTransform(0f,body.getPosition().y, body.getAngle());
-        } else if(body.getPosition().x < 0f) {
-            body.setTransform(Utils.toWorld(Main.INSTANCE.getScreenWidth()),body.getPosition().y, body.getAngle());
+        if(Utils.toPixel(body.getPosition().x) > Main.INSTANCE.getScreenWidth() + 50) {
+            body.setTransform(Utils.toWorld(-50),body.getPosition().y, body.getAngle());
+        } else if(body.getPosition().x < Utils.toWorld(-50)) {
+            body.setTransform(Utils.toWorld(Main.INSTANCE.getScreenWidth() + 50),body.getPosition().y, body.getAngle());
         }
-        if(Utils.toPixel(body.getPosition().y) > Main.INSTANCE.getScreenHeight()) {
-            body.setTransform(body.getPosition().x, 0f, body.getAngle());
-        } else if(body.getPosition().y < 0f) {
-            body.setTransform(body.getPosition().x, Utils.toWorld(Main.INSTANCE.getScreenHeight()), body.getAngle());
+        if(Utils.toPixel(body.getPosition().y) > Main.INSTANCE.getScreenHeight() + 50) {
+            body.setTransform(body.getPosition().x, Utils.toWorld(-50), body.getAngle());
+        } else if(body.getPosition().y < Utils.toWorld(-50)) {
+            body.setTransform(body.getPosition().x, Utils.toWorld(Main.INSTANCE.getScreenHeight() + 50), body.getAngle());
         }
     }
 
@@ -71,6 +76,28 @@ public class Asteroid extends Entity {
         sr.identity();
     }
 
+    public void hit() {
+        int x = Utils.toPixel(body.getPosition().x);
+        int y = Utils.toPixel(body.getPosition().y);
+        //System.out.println(gameScreen.getEntitiesToAdd().add(new));
+
+//        switch(type) {
+//            case SMALL:
+//                dispose();
+//                break;
+//            case MEDIUM:
+//                for(int i = 0; i < 2; i++)
+//                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.SMALL));
+//                dispose();
+//                break;
+//            case LARGE:
+//                for(int i = 0; i < 2; i++)
+//                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.MEDIUM));
+//                dispose();
+//                break;
+//        }
+    }
+
     private float[] calculateVertices(boolean inPixels, long seed) {
         float[] vertices = new float[VERTICES * 2];
         float angle = (2 * MathUtils.PI) / VERTICES;
@@ -79,14 +106,14 @@ public class Asteroid extends Entity {
         switch(type) {
             case SMALL:
                 maxRadius = 30;
-                minRadius = 5;
+                minRadius = 10;
                 break;
             case MEDIUM:
                 maxRadius = 70;
                 minRadius = 50;
                 break;
             case LARGE:
-                maxRadius = 90;
+                maxRadius = 120;
                 minRadius = 70;
         }
         float currentAngle = 0;

@@ -2,17 +2,14 @@ package gdx.asteroidsclone.entities.particles;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import gdx.asteroidsclone.entities.ContactType;
+import gdx.asteroidsclone.physics.ContactType;
 import gdx.asteroidsclone.entities.Entity;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
-
-import java.util.Random;
 
 public class FlameParticle extends Entity {
 
@@ -43,7 +40,7 @@ public class FlameParticle extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.TRAIL.BIT;
-        this.fd.filter.maskBits = ContactType.TRAIL.BIT;
+        this.fd.filter.maskBits = ContactType.ASTEROID.BIT;
 
         this.body.createFixture(this.fd);
         this.cs.dispose();

@@ -30,4 +30,24 @@ public abstract class Entity {
     public Body getBody() {
         return body;
     }
+
+    public void setBody(Body body) {
+        this.body = body;
+    }
+
+    public BodyDef getBd() {
+        return bd;
+    }
+
+    public void setBd(BodyDef bd) {
+        this.bd = bd;
+    }
+
+    public FixtureDef getFd() {
+        return fd;
+    }
+
+    public void setFd(FixtureDef fd) {
+        this.fd = fd;
+    }
 }
