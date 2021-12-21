@@ -77,26 +77,39 @@ public class Asteroid extends Entity {
         int y = Utils.toPixel(body.getPosition().y);
         for(int i = 0; i < PARTICLES; i++)
             gameScreen.getEntitiesToAdd().add(new Debris(x ,y));
+        float newAngle;
+        Player player = gameScreen.getPlayer();
         switch(type) {
             case SMALL:
-                dispose();
+                // 1 point per 100 pixels
+                float distance = Utils.toPixel(body.getPosition().dst(player.getBody().getPosition())) / 100f;
+                player.setScore(player.getScore() + MathUtils.round (distance));
                 break;
             case MEDIUM:
-                for(int i = 0; i < 2; i++)
-                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.SMALL));
-                dispose();
+                player.setScore(player.getScore() + 5);
+                for(int i = 0; i < 2; i++) {
+                    var asteroid = new Asteroid(x, y, AsteroidType.SMALL);
+                    newAngle = body.getAngle() + MathUtils.randomSign() * MathUtils.random(0f, MathUtils.PI / 4);
+                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle));
+                    gameScreen.getEntitiesToAdd().add(asteroid);
+                }
                 break;
             case LARGE:
-                for(int i = 0; i < 2; i++)
-                    gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, AsteroidType.MEDIUM));
-                dispose();
+                player.setScore(player.getScore() + 10);
+                for(int i = 0; i < 2; i++) {
+                    var asteroid = new Asteroid(x, y, AsteroidType.MEDIUM);
+                    newAngle = body.getAngle() + MathUtils.randomSign() * MathUtils.random(0f, MathUtils.PI / 4);
+                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle));
+                    gameScreen.getEntitiesToAdd().add(asteroid);
+                }
                 break;
         }
+        dispose();
     }
 
     private float[] calculateVertices(boolean inPixels, long seed) {
         float[] vertices = new float[VERTICES * 2];
-        float angle = (2 * MathUtils.PI) / VERTICES;
+        float angleDiff = (2 * MathUtils.PI) / VERTICES;
         int minRadius = 0; // Pixels
         int maxRadius = 0; // Pixels
         switch(type) {
@@ -113,14 +126,14 @@ public class Asteroid extends Entity {
                 minRadius = 70;
         }
         float currentAngle = 0;
-        random.setSeed(seed);
+        MathUtils.random.setSeed(seed);
         for(int i = 0; i < VERTICES * 2; i += 2) {
-            float radius = Math.min(maxRadius, Math.max(random.nextInt(maxRadius + 1), minRadius));
+            float radius = MathUtils.random(minRadius, maxRadius);
             if(!inPixels)
                 radius = Utils.toWorld(radius);
             vertices[i] = radius * MathUtils.cos(currentAngle);
             vertices[i + 1] = radius * MathUtils.sin(currentAngle);
-            currentAngle += angle;
+            currentAngle += angleDiff;
         }
         return vertices;
     }

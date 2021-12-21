@@ -9,15 +9,12 @@ import java.util.Random;
 public abstract class Entity {
 
     public static GameScreen gameScreen;
-    public static Random random = new Random();
 
     protected PolygonShape ps;
     protected CircleShape cs;
     protected Body body;
     protected BodyDef bd;
     protected FixtureDef fd;
-
-    protected Entity() {}
 
     public abstract void update();
 

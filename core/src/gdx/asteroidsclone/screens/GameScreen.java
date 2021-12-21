@@ -4,7 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -21,6 +25,8 @@ public class GameScreen extends ScreenAdapter {
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
     public static final float FPS = 60f;
+    public static final int FONT_SIZE = 30;
+    public static final Color FONT_COLOR = Color.WHITE;
 
     public static World world;
 
@@ -30,6 +36,10 @@ public class GameScreen extends ScreenAdapter {
     private Player player;
     private Camera camera;
     private ShapeRenderer sr;
+    private SpriteBatch sb;
+    private FreeTypeFontGenerator fontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    private BitmapFont font;
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
 
@@ -40,6 +50,13 @@ public class GameScreen extends ScreenAdapter {
         this.camera.update();
         this.sr = new ShapeRenderer();
         this.sr.setProjectionMatrix(camera.combined);
+        this.sb = new SpriteBatch();
+        this.sb.setProjectionMatrix(camera.combined);
+        this.fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/VCR_OSD_MONO.ttf"));
+        this.fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        this.fontParameter.size = FONT_SIZE;
+        this.fontParameter.color = FONT_COLOR;
+        this.font = fontGenerator.generateFont(this.fontParameter);
         world = new World(new Vector2(0, 0), false);
         world.setContactListener(new CustomContactListener(this));
         this.debugRenderer = new Box2DDebugRenderer();
@@ -55,8 +72,8 @@ public class GameScreen extends ScreenAdapter {
         world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
+            System.exit(0);
         }
-        camera.update();
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
                 world.destroyBody(e.getBody());
@@ -86,6 +103,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float deltaTime) {
         update();
+        camera.update();
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         sr.begin(ShapeRenderer.ShapeType.Line);
@@ -93,12 +111,16 @@ public class GameScreen extends ScreenAdapter {
             e.render(sr);
         }
         sr.end();
+        sb.begin();
+        font.draw(sb, "Score: "+player.getScore(), 10, Main.INSTANCE.getScreenHeight() - 10);
+        sb.end();
         //debugRenderer.render(world, camera.combined.scl(Utils.PPM));
     }
 
     @Override
     public void dispose() {
         sr.dispose();
+        sb.dispose();
         debugRenderer.dispose();
         for(Entity e : entities) {
             e.dispose();
@@ -123,5 +145,9 @@ public class GameScreen extends ScreenAdapter {
 
     public Set<Entity> getEntitiesToAdd() {
         return entitiesToAdd;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

@@ -29,6 +29,7 @@ public class Player extends Entity {
     private Polygon shape;
     private int particleOutputTimer;
     private int fireRateTimer;
+    private int score;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -93,7 +94,6 @@ public class Player extends Entity {
         } else if(y < 0) {
             body.setTransform(body.getPosition().x, Utils.toWorld(Main.INSTANCE.getScreenHeight()), body.getAngle());
         }
-//
     }
 
     @Override
@@ -133,5 +133,13 @@ public class Player extends Entity {
         vertices[4] = scale * MathUtils.cos(-MathUtils.PI / 4);
         vertices[5] = scale * MathUtils.sin(-MathUtils.PI / 4);
         return vertices;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

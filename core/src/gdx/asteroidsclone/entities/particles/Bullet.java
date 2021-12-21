@@ -9,26 +9,24 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.physics.ContactType;
 import gdx.asteroidsclone.entities.Entity;
-import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.utils.Utils;
 
-public class Bullet extends Entity {
+public class Bullet extends Particle {
 
     public static int bulletCount = 0;
 
-    private static final float INIT_VEL = 200f; // Meters per second
-    private static final int RADIUS = 2; // In pixels
-
     public Bullet(int x, int y, Entity player) {
+        this.radius = 2;
+        this.initVel = 200;
         bulletCount++;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         float angle = player.getBody().getAngle() + MathUtils.PI / 2;
-        this.bd.linearVelocity.set(new Vector2(INIT_VEL * MathUtils.cos(angle), INIT_VEL * MathUtils.sin(angle)));
+        this.bd.linearVelocity.set(new Vector2(initVel * MathUtils.cos(angle), initVel * MathUtils.sin(angle)));
 
         this.cs = new CircleShape();
-        this.cs.setRadius(Utils.toWorld(RADIUS));
+        this.cs.setRadius(Utils.toWorld(radius));
 
         this.fd = new FixtureDef();
         this.fd.shape = cs;
@@ -56,7 +54,7 @@ public class Bullet extends Entity {
             return;
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
-        sr.circle(x, y, RADIUS);
+        sr.circle(x, y, radius);
     }
 
     @Override

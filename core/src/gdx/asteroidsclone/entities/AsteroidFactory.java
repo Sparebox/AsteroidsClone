@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities;
 
+import com.badlogic.gdx.math.MathUtils;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.screens.GameScreen;
 
@@ -31,9 +32,9 @@ public class AsteroidFactory {
     }
 
     private void spawnAsteroid() {
-        boolean onX = Entity.random.nextBoolean();
-        int x = Entity.random.nextInt(Main.INSTANCE.getScreenWidth() + 1);
-        int y = Entity.random.nextInt(Main.INSTANCE.getScreenHeight() + 1);
+        boolean onX = MathUtils.randomBoolean();
+        int x = MathUtils.random(0, Main.INSTANCE.getScreenWidth() + 1);
+        int y = MathUtils.random(0, Main.INSTANCE.getScreenHeight() + 1);
         if(onX)
             y = 0;
         else
