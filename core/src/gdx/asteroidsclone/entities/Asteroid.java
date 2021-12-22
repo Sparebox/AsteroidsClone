@@ -81,7 +81,7 @@ public class Asteroid extends Entity {
         Player player = gameScreen.getPlayer();
         switch(type) {
             case SMALL:
-                // 1 point per 100 pixels
+                // 1 point per distance of 100 pixels
                 float distance = Utils.toPixel(body.getPosition().dst(player.getBody().getPosition())) / 100f;
                 player.setScore(player.getScore() + MathUtils.round (distance));
                 break;

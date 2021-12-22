@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -57,7 +58,7 @@ public class GameScreen extends ScreenAdapter {
         this.fontParameter.size = FONT_SIZE;
         this.fontParameter.color = FONT_COLOR;
         this.font = fontGenerator.generateFont(this.fontParameter);
-        world = new World(new Vector2(0, 0), false);
+        world = new World(Vector2.Zero, false);
         world.setContactListener(new CustomContactListener(this));
         this.debugRenderer = new Box2DDebugRenderer();
         this.asteroidFactory = new AsteroidFactory(this);
@@ -113,6 +114,7 @@ public class GameScreen extends ScreenAdapter {
         sr.end();
         sb.begin();
         font.draw(sb, "Score: "+player.getScore(), 10, Main.INSTANCE.getScreenHeight() - 10);
+        font.draw(sb, "Lives: "+player.getLives(), 10, Main.INSTANCE.getScreenHeight() -  40);
         sb.end();
         //debugRenderer.render(world, camera.combined.scl(Utils.PPM));
     }

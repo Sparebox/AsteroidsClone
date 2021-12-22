@@ -30,6 +30,7 @@ public class Player extends Entity {
     private int particleOutputTimer;
     private int fireRateTimer;
     private int score;
+    private int lives = 3;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -109,6 +110,12 @@ public class Player extends Entity {
         sr.identity();
     }
 
+    public void hit() {
+        lives--;
+        if(lives == 0)
+            Gdx.app.exit();
+    }
+
     private float[] calculateVertices() {
         float[] vertices = new float[8];
         float scale = PLAYER_SCALE;
@@ -141,5 +148,9 @@ public class Player extends Entity {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public int getLives() {
+        return lives;
     }
 }
