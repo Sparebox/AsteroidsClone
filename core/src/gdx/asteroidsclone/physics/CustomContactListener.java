@@ -8,7 +8,10 @@ import gdx.asteroidsclone.screens.GameScreen;
 
 public class CustomContactListener implements ContactListener {
 
+    private static final int COOL_DOWN = 100; // In milliseconds
+
     private GameScreen gameScreen;
+    private long lastTime = System.currentTimeMillis();
 
     public CustomContactListener(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
@@ -28,12 +31,19 @@ public class CustomContactListener implements ContactListener {
             ((Asteroid) contact.getFixtureA().getBody().getUserData()).hit();
         }
 
+
         if(a == ContactType.PLAYER.BIT && b == ContactType.ASTEROID.BIT) {
-            var p = (Player) contact.getFixtureA().getBody().getUserData();
-            p.hit();
+            if(System.currentTimeMillis() - lastTime > COOL_DOWN) {
+                var p = (Player) contact.getFixtureA().getBody().getUserData();
+                p.hit();
+                lastTime = System.currentTimeMillis();
+            }
         } else if(a == ContactType.ASTEROID.BIT && b == ContactType.PLAYER.BIT) {
-            var p = (Player) contact.getFixtureB().getBody().getUserData();
-            p.hit();
+            if(System.currentTimeMillis() - lastTime > COOL_DOWN) {
+                var p = (Player) contact.getFixtureB().getBody().getUserData();
+                p.hit();
+                lastTime = System.currentTimeMillis();
+            }
         }
 
     }

@@ -25,12 +25,18 @@ public class Player extends Entity {
     private static final float PARTICLE_RATE = 3f;
     private static final float FIRE_RATE = 0.1f;
     private static final int PLAYER_SCALE = 30; // In pixels
+    private static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
+    private static final int BLINK_INTERVAL = 10;
 
     private Polygon shape;
     private int particleOutputTimer;
     private int fireRateTimer;
     private int score;
     private int lives = 3;
+    private int blinkTimer;
+    private int blinkCounter;
+    private boolean redOn = true;
+    private boolean blinking;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -104,16 +110,34 @@ public class Player extends Entity {
         float rot = body.getAngle() * MathUtils.radiansToDegrees;
         sr.translate(x, y,0);
         sr.rotate(0,0,1,rot);
-        sr.setColor(Color.YELLOW);
+        if(blinking) {
+            if(redOn)
+                sr.setColor(Color.RED);
+            else
+                sr.setColor(Color.YELLOW);
+            blinkTimer++;
+            if(blinkTimer > BLINK_INTERVAL) {
+                redOn = !redOn;
+                blinkCounter++;
+                if(blinkCounter == DMG_BLINK_COUNT)
+                    blinking = false;
+                blinkTimer = 0;
+            }
+        } else
+            sr.setColor(Color.YELLOW);
         sr.polygon(shape.getVertices());
         sr.setColor(Color.WHITE);
         sr.identity();
     }
 
     public void hit() {
+        blinking = true;
         lives--;
-        if(lives == 0)
+        if(lives == 0) {
             Gdx.app.exit();
+            System.exit(0);
+        }
+
     }
 
     private float[] calculateVertices() {
@@ -152,5 +176,9 @@ public class Player extends Entity {
 
     public int getLives() {
         return lives;
+    }
+
+    public void setBlinking(boolean blinking) {
+        this.blinking = blinking;
     }
 }
