@@ -6,28 +6,34 @@ import gdx.asteroidsclone.screens.GameScreen;
 
 public class AsteroidFactory {
 
-    private static final int ASTEROID_INTERVAL = 4; // In seconds
+    private static final int ASTEROID_INTERVAL = 4000; // In milliseconds
+
+    public static int asteroidCount;
 
     private GameScreen gameScreen;
-    private int asteroidTimer;
-    private int asteroidCount;
+    private int levelSpawned;
     private long lastTime = System.currentTimeMillis();
-    private Level currentLevel = Level.LEVEl3;
+    private Level currentLevel = Level.LEVEL1;
 
     public AsteroidFactory(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
     }
 
     public void update() {
-        float diff = System.currentTimeMillis() - lastTime;
-        if(diff > 1000) {
-            lastTime = System.currentTimeMillis();
-            asteroidTimer++;
-        }
-        if(asteroidTimer > ASTEROID_INTERVAL) {
-            if(asteroidCount < currentLevel.ASTEROID_COUNT)
+        if(System.currentTimeMillis() - lastTime > ASTEROID_INTERVAL) {
+            if(levelSpawned < currentLevel.ASTEROID_COUNT)
                 spawnAsteroid();
-            asteroidTimer = 0;
+            lastTime = System.currentTimeMillis();
+        }
+
+        if(asteroidCount == 0 && levelSpawned == currentLevel.ASTEROID_COUNT) {
+            if(currentLevel.ordinal() < Level.LEVEl3.ordinal()) {
+                currentLevel = Level.values()[currentLevel.ordinal() + 1];
+                levelSpawned = 0;
+                System.out.println("Level change");
+            } else {
+                System.out.println("Game won"); //TODO: Implement game over functionality
+            }
         }
     }
 
@@ -40,9 +46,12 @@ public class AsteroidFactory {
         else
             x = 0;
         gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
-        asteroidCount++;
+        levelSpawned++;
         }
 
+    public Level getCurrentLevel() {
+        return currentLevel;
+    }
 }
 
 

@@ -34,7 +34,7 @@ public class Asteroid extends Entity {
         this.ps.set(calculateVertices(false, seed));
         this.fd = new FixtureDef();
         this.fd.shape = ps;
-        this.fd.density = 1f;
+        this.fd.density = 10f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = ContactType.ASTEROID.BIT;
@@ -45,6 +45,7 @@ public class Asteroid extends Entity {
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices(true, seed));
+        AsteroidFactory.asteroidCount++;
     }
 
     @Override
@@ -72,7 +73,14 @@ public class Asteroid extends Entity {
         sr.identity();
     }
 
-    public void hit() {
+    @Override
+    public void dispose() {
+        gameScreen.getEntitiesToDelete().add(this);
+        AsteroidFactory.asteroidCount--;
+        System.out.println(AsteroidFactory.asteroidCount);
+    }
+
+    public void hit(Vector2 bulletDir) {
         int x = Utils.toPixel(body.getPosition().x);
         int y = Utils.toPixel(body.getPosition().y);
         for(int i = 0; i < PARTICLES; i++)
@@ -83,14 +91,15 @@ public class Asteroid extends Entity {
             case SMALL:
                 // 1 point per distance of 100 pixels
                 float distance = Utils.toPixel(body.getPosition().dst(player.getBody().getPosition())) / 100f;
-                player.setScore(player.getScore() + MathUtils.round (distance));
+                player.setScore(player.getScore() + MathUtils.round(distance));
                 break;
             case MEDIUM:
                 player.setScore(player.getScore() + 5);
                 for(int i = 0; i < 2; i++) {
                     var asteroid = new Asteroid(x, y, AsteroidType.SMALL);
-                    newAngle = body.getAngle() + MathUtils.randomSign() * MathUtils.random(0f, MathUtils.PI / 4);
-                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle));
+                    int sign = i % 2 == 0 ? 1 : -1;
+                    newAngle =  bulletDir.angleRad() + sign * MathUtils.PI / 2;
+                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.2f));
                     gameScreen.getEntitiesToAdd().add(asteroid);
                 }
                 break;
@@ -98,8 +107,9 @@ public class Asteroid extends Entity {
                 player.setScore(player.getScore() + 10);
                 for(int i = 0; i < 2; i++) {
                     var asteroid = new Asteroid(x, y, AsteroidType.MEDIUM);
-                    newAngle = body.getAngle() + MathUtils.randomSign() * MathUtils.random(0f, MathUtils.PI / 4);
-                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle));
+                    int sign = i % 2 == 0 ? 1 : -1;
+                    newAngle =  bulletDir.angleRad() + sign * MathUtils.PI / 2;
+                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.1f));
                     gameScreen.getEntitiesToAdd().add(asteroid);
                 }
                 break;

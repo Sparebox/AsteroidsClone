@@ -114,7 +114,8 @@ public class GameScreen extends ScreenAdapter {
         sr.end();
         sb.begin();
         font.draw(sb, "Score: "+player.getScore(), 10, Main.INSTANCE.getScreenHeight() - 10);
-        font.draw(sb, "Lives: "+player.getLives(), 10, Main.INSTANCE.getScreenHeight() -  40);
+        font.draw(sb, "Lives: "+player.getLives(), 10, Main.INSTANCE.getScreenHeight() - 40);
+        font.draw(sb, asteroidFactory.getCurrentLevel().toString(), 10, Main.INSTANCE.getScreenHeight() - 70);
         sb.end();
         //debugRenderer.render(world, camera.combined.scl(Utils.PPM));
     }

@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.physics;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import gdx.asteroidsclone.entities.Asteroid;
 import gdx.asteroidsclone.entities.Player;
@@ -23,12 +24,16 @@ public class CustomContactListener implements ContactListener {
         var b = contact.getFixtureB().getFilterData().categoryBits;
 
         if(a == ContactType.BULLET.BIT && b == ContactType.ASTEROID.BIT) {
-            ((Bullet) contact.getFixtureA().getBody().getUserData()).dispose();
-            ((Asteroid) contact.getFixtureB().getBody().getUserData()).hit();
+            var bullet = (Bullet) contact.getFixtureA().getBody().getUserData();
+            Vector2 bulletDir = bullet.getBody().getLinearVelocity().cpy().setLength(1);
+            ((Asteroid) contact.getFixtureB().getBody().getUserData()).hit(bulletDir);
+            bullet.dispose();
 
         } else if(a == ContactType.ASTEROID.BIT && b == ContactType.BULLET.BIT) {
-            ((Bullet) contact.getFixtureB().getBody().getUserData()).dispose();
-            ((Asteroid) contact.getFixtureA().getBody().getUserData()).hit();
+            var bullet = (Bullet) contact.getFixtureB().getBody().getUserData();
+            Vector2 bulletDir = bullet.getBody().getLinearVelocity().cpy().setLength(1);
+            ((Asteroid) contact.getFixtureA().getBody().getUserData()).hit(bulletDir);
+            bullet.dispose();
         }
 
 

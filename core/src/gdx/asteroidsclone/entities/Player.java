@@ -26,15 +26,15 @@ public class Player extends Entity {
     private static final float FIRE_RATE = 0.1f;
     private static final int PLAYER_SCALE = 30; // In pixels
     private static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
-    private static final int BLINK_INTERVAL = 10;
+    private static final int BLINK_INTERVAL = 100; // In milliseconds
 
     private Polygon shape;
     private int particleOutputTimer;
     private int fireRateTimer;
     private int score;
     private int lives = 3;
-    private int blinkTimer;
     private int blinkCounter;
+    private long lastTime = System.currentTimeMillis();
     private boolean redOn = true;
     private boolean blinking;
 
@@ -115,13 +115,14 @@ public class Player extends Entity {
                 sr.setColor(Color.RED);
             else
                 sr.setColor(Color.YELLOW);
-            blinkTimer++;
-            if(blinkTimer > BLINK_INTERVAL) {
+            if(System.currentTimeMillis() - lastTime > BLINK_INTERVAL) {
                 redOn = !redOn;
+                lastTime = System.currentTimeMillis();
                 blinkCounter++;
-                if(blinkCounter == DMG_BLINK_COUNT)
+                if(blinkCounter == DMG_BLINK_COUNT) {
                     blinking = false;
-                blinkTimer = 0;
+                    blinkCounter = 0;
+                }
             }
         } else
             sr.setColor(Color.YELLOW);
@@ -136,6 +137,7 @@ public class Player extends Entity {
         if(lives == 0) {
             Gdx.app.exit();
             System.exit(0);
+            // TODO: Implement game over functionality
         }
 
     }
