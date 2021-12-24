@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.screens.GameScreen;
@@ -30,9 +31,9 @@ public class AsteroidFactory {
             if(currentLevel.ordinal() < Level.LEVEl3.ordinal()) {
                 currentLevel = Level.values()[currentLevel.ordinal() + 1];
                 levelSpawned = 0;
-                System.out.println("Level change");
             } else {
                 System.out.println("Game won"); //TODO: Implement game over functionality
+                Gdx.app.exit();
             }
         }
     }

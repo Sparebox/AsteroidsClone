@@ -77,7 +77,6 @@ public class Asteroid extends Entity {
     public void dispose() {
         gameScreen.getEntitiesToDelete().add(this);
         AsteroidFactory.asteroidCount--;
-        System.out.println(AsteroidFactory.asteroidCount);
     }
 
     public void hit(Vector2 bulletDir) {

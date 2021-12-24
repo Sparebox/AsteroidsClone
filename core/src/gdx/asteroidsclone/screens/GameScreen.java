@@ -73,7 +73,6 @@ public class GameScreen extends ScreenAdapter {
         world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
-            System.exit(0);
         }
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {

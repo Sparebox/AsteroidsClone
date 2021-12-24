@@ -26,7 +26,8 @@ public class Main extends Game {
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeight = Gdx.graphics.getHeight();
 		camera = new OrthographicCamera(screenWidth, screenHeight);
-		setScreen(new GameScreen(camera));
+		gameScreen = new GameScreen(camera);
+		setScreen(gameScreen);
 	}
 
 	@Override
@@ -37,7 +38,7 @@ public class Main extends Game {
 	
 	@Override
 	public void dispose() {
-		screen.dispose();
+		gameScreen.dispose();
 	}
 
 	public int getScreenWidth() {
