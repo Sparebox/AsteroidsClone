@@ -14,7 +14,7 @@ public class AsteroidFactory {
     private GameScreen gameScreen;
     private int levelSpawned;
     private long lastTime = System.currentTimeMillis();
-    private Level currentLevel = Level.LEVEL1;
+    private Level currentLevel = Level.LEVEl3;
 
     public AsteroidFactory(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
@@ -40,8 +40,8 @@ public class AsteroidFactory {
 
     private void spawnAsteroid() {
         boolean onX = MathUtils.randomBoolean();
-        int x = MathUtils.random(0, Main.INSTANCE.getScreenWidth() + 1);
-        int y = MathUtils.random(0, Main.INSTANCE.getScreenHeight() + 1);
+        int x = MathUtils.random(0, Main.WORLD_WIDTH + 1);
+        int y = MathUtils.random(0, Main.WORLD_HEIGHT + 1);
         if(onX)
             y = 0;
         else

@@ -10,17 +10,17 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class Debris extends Particle {
 
-    public Debris(int x, int y) {
-        this.radius = 3;
+    public Debris(float x, float y) {
+        this.radius = 1f;
         this.timeToLive = 1f;
         this.initVel = 20;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
-        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
+        this.bd.position.set(x, y);
         this.bd.linearVelocity.set(new Vector2().setToRandomDirection().setLength(initVel));
 
         this.cs = new CircleShape();
-        this.cs.setRadius(Utils.toWorld(radius));
+        this.cs.setRadius(radius);
 
         this.fd = new FixtureDef();
         this.fd.shape = cs;
@@ -38,8 +38,8 @@ public class Debris extends Particle {
 
     @Override
     public void render(ShapeRenderer sr) {
-        int x = Utils.toPixel(body.getPosition().x);
-        int y = Utils.toPixel(body.getPosition().y);
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
         sr.circle(x, y, radius);
     }
 }

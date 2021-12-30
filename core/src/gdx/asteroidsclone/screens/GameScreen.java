@@ -6,8 +6,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -35,7 +35,7 @@ public class GameScreen extends ScreenAdapter {
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
     private Player player;
-    private Camera camera;
+    private Camera gameCamera;
     private ShapeRenderer sr;
     private SpriteBatch sb;
     private FreeTypeFontGenerator fontGenerator;
@@ -43,16 +43,18 @@ public class GameScreen extends ScreenAdapter {
     private BitmapFont font;
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
+    private Camera UIcamera;
 
     public GameScreen(Camera camera) {
         Entity.gameScreen = this;
-        this.camera = camera;
-        this.camera.translate(Main.INSTANCE.getScreenWidth() / 2f, Main.INSTANCE.getScreenHeight() / 2f, 0);
-        this.camera.update();
+        this.gameCamera = camera;
+        this.UIcamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        this.UIcamera.translate(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
+        this.UIcamera.update();
         this.sr = new ShapeRenderer();
-        this.sr.setProjectionMatrix(camera.combined);
+        this.sr.setProjectionMatrix(gameCamera.combined);
         this.sb = new SpriteBatch();
-        this.sb.setProjectionMatrix(camera.combined);
+        this.sb.setProjectionMatrix(UIcamera.combined);
         this.fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/VCR_OSD_MONO.ttf"));
         this.fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         this.fontParameter.size = FONT_SIZE;
@@ -65,7 +67,7 @@ public class GameScreen extends ScreenAdapter {
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
-        this.player = new Player(Main.INSTANCE.getScreenWidth() / 2, Main.INSTANCE.getScreenHeight() / 2);
+        this.player = new Player(Main.WORLD_WIDTH / 2, Main.WORLD_HEIGHT / 2);
         this.entitiesToAdd.add(player);
     }
 
@@ -103,7 +105,6 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float deltaTime) {
         update();
-        camera.update();
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         sr.begin(ShapeRenderer.ShapeType.Line);
@@ -112,11 +113,11 @@ public class GameScreen extends ScreenAdapter {
         }
         sr.end();
         sb.begin();
-        font.draw(sb, "Score: "+player.getScore(), 10, Main.INSTANCE.getScreenHeight() - 10);
-        font.draw(sb, "Lives: "+player.getLives(), 10, Main.INSTANCE.getScreenHeight() - 40);
-        font.draw(sb, asteroidFactory.getCurrentLevel().toString(), 10, Main.INSTANCE.getScreenHeight() - 70);
+        font.draw(sb, "Score: "+player.getScore(), 10, Gdx.graphics.getHeight() - 5);
+        font.draw(sb, "Lives: "+player.getLives(), 10, Gdx.graphics.getHeight() - 5 - font.getLineHeight());
+        font.draw(sb, asteroidFactory.getCurrentLevel().toString(), 10,Gdx.graphics.getHeight() - 5 - 2 * font.getLineHeight());
         sb.end();
-        //debugRenderer.render(world, camera.combined.scl(Utils.PPM));
+        //debugRenderer.render(world, gameCamera.combined);
     }
 
     @Override

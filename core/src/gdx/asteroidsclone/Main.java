@@ -6,16 +6,21 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.screens.MenuScreen;
+import gdx.asteroidsclone.utils.Utils;
 
 public class Main extends Game {
+
+	private static final float ASPECT_RATIO = 16f / 9f;
+
+	public static final int WORLD_WIDTH = (int) (200 * ASPECT_RATIO); // In meters
+	public static final int WORLD_HEIGHT = 200;
+
 
 	public static Main INSTANCE;
 
 	private MenuScreen menuScreen;
 	private GameScreen gameScreen;
 	private Camera camera;
-	private int screenWidth;
-	private int screenHeight;
 
 	public Main() {
 		INSTANCE = this;
@@ -23,9 +28,9 @@ public class Main extends Game {
 
 	@Override
 	public void create() {
-		screenWidth = Gdx.graphics.getWidth();
-		screenHeight = Gdx.graphics.getHeight();
-		camera = new OrthographicCamera(screenWidth, screenHeight);
+		camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
+		camera.translate(WORLD_WIDTH / 2f, WORLD_HEIGHT / 2f, 0);
+		camera.update();
 		gameScreen = new GameScreen(camera);
 		setScreen(gameScreen);
 	}
@@ -41,11 +46,4 @@ public class Main extends Game {
 		gameScreen.dispose();
 	}
 
-	public int getScreenWidth() {
-		return screenWidth;
-	}
-
-	public int getScreenHeight() {
-		return screenHeight;
-	}
 }

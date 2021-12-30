@@ -5,7 +5,7 @@ import gdx.asteroidsclone.entities.Entity;
 public abstract class Particle extends Entity {
 
     protected int initVel; // Meters per second
-    protected int radius = 3; // In pixels
+    protected float radius; // In meters
     protected float timeToLive; // Seconds
     protected float lifeTimer;
     protected long lastTime;

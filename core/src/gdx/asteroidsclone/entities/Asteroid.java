@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -16,22 +17,22 @@ import gdx.asteroidsclone.utils.Utils;
 public class Asteroid extends Entity {
 
     private static final int PARTICLES = 10; // Particle count when hit
-    private static final int VERTICES = 7;
+    private static final int VERTICES = 8;
     private static final int INIT_VEL = 20; // Meters per second
 
     private Polygon shape;
     private AsteroidType type;
 
-    public Asteroid(int x, int y, AsteroidType type) {
+    public Asteroid(float x, float y, AsteroidType type) {
         long seed = System.nanoTime();
         this.type = type;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
-        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
+        this.bd.position.set(x, y);
         this.bd.linearVelocity.set(new Vector2().setToRandomDirection().scl(INIT_VEL));
 
         this.ps = new PolygonShape();
-        this.ps.set(calculateVertices(false, seed));
+        this.ps.set(calculateVertices(seed));
         this.fd = new FixtureDef();
         this.fd.shape = ps;
         this.fd.density = 10f;
@@ -44,28 +45,32 @@ public class Asteroid extends Entity {
         shape = new Polygon();
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
-        shape.setVertices(calculateVertices(true, seed));
+        shape.setVertices(calculateVertices(seed));
         AsteroidFactory.asteroidCount++;
+    }
+
+    public Asteroid(Vector2 pos, AsteroidType type) {
+        new Asteroid(pos.x, pos.y, type);
     }
 
     @Override
     public void update() {
-        if(Utils.toPixel(body.getPosition().x) > Main.INSTANCE.getScreenWidth() + 50) {
-            body.setTransform(Utils.toWorld(-50),body.getPosition().y, body.getAngle());
-        } else if(body.getPosition().x < Utils.toWorld(-50)) {
-            body.setTransform(Utils.toWorld(Main.INSTANCE.getScreenWidth() + 50),body.getPosition().y, body.getAngle());
+        if(body.getPosition().x > Main.WORLD_WIDTH + 25) {
+            body.setTransform(-25,body.getPosition().y, body.getAngle());
+        } else if(body.getPosition().x < -25) {
+            body.setTransform(Main.WORLD_WIDTH + 25,body.getPosition().y, body.getAngle());
         }
-        if(Utils.toPixel(body.getPosition().y) > Main.INSTANCE.getScreenHeight() + 50) {
-            body.setTransform(body.getPosition().x, Utils.toWorld(-50), body.getAngle());
-        } else if(body.getPosition().y < Utils.toWorld(-50)) {
-            body.setTransform(body.getPosition().x, Utils.toWorld(Main.INSTANCE.getScreenHeight() + 50), body.getAngle());
+        if(body.getPosition().y > Main.WORLD_HEIGHT + 25) {
+            body.setTransform(body.getPosition().x, -25, body.getAngle());
+        } else if(body.getPosition().y < -25) {
+            body.setTransform(body.getPosition().x, Main.WORLD_HEIGHT + 25, body.getAngle());
         }
     }
 
     @Override
     public void render(ShapeRenderer sr) {
-        int x = Utils.toPixel(body.getPosition().x);
-        int y = Utils.toPixel(body.getPosition().y);
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
         float rot = body.getAngle() * MathUtils.radiansToDegrees;
         sr.translate(x, y,0);
         sr.rotate(0,0,1,rot);
@@ -80,35 +85,43 @@ public class Asteroid extends Entity {
     }
 
     public void hit(Vector2 bulletDir) {
-        int x = Utils.toPixel(body.getPosition().x);
-        int y = Utils.toPixel(body.getPosition().y);
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
         for(int i = 0; i < PARTICLES; i++)
             gameScreen.getEntitiesToAdd().add(new Debris(x ,y));
         float newAngle;
         Player player = gameScreen.getPlayer();
         switch(type) {
             case SMALL:
-                // 1 point per distance of 100 pixels
-                float distance = Utils.toPixel(body.getPosition().dst(player.getBody().getPosition())) / 100f;
+                // 1 point per distance of 20 meters
+                float distance = body.getPosition().dst(player.getBody().getPosition()) / 20f;
                 player.setScore(player.getScore() + MathUtils.round(distance));
                 break;
             case MEDIUM:
                 player.setScore(player.getScore() + 5);
                 for(int i = 0; i < 2; i++) {
-                    var asteroid = new Asteroid(x, y, AsteroidType.SMALL);
                     int sign = i % 2 == 0 ? 1 : -1;
+                    int separation = 5;
+                    var asteroid = new Asteroid(x, y, AsteroidType.SMALL);
                     newAngle =  bulletDir.angleRad() + sign * MathUtils.PI / 2;
+                    asteroid.getBd().position.set(body.getPosition().cpy().add(
+                            new Vector2(separation * MathUtils.cos(newAngle), separation * MathUtils.sin(newAngle))));
                     asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.2f));
+                    asteroid.getBd().angularVelocity = body.getAngularVelocity();
                     gameScreen.getEntitiesToAdd().add(asteroid);
                 }
                 break;
             case LARGE:
                 player.setScore(player.getScore() + 10);
                 for(int i = 0; i < 2; i++) {
-                    var asteroid = new Asteroid(x, y, AsteroidType.MEDIUM);
                     int sign = i % 2 == 0 ? 1 : -1;
+                    int separation = 15;
+                    var asteroid = new Asteroid(x, y, AsteroidType.MEDIUM);
                     newAngle =  bulletDir.angleRad() + sign * MathUtils.PI / 2;
+                    asteroid.getBd().position.set(body.getPosition().cpy().add(
+                            new Vector2(separation * MathUtils.cos(newAngle), separation * MathUtils.sin(newAngle))));
                     asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.1f));
+                    asteroid.getBd().angularVelocity = body.getAngularVelocity();
                     gameScreen.getEntitiesToAdd().add(asteroid);
                 }
                 break;
@@ -116,30 +129,28 @@ public class Asteroid extends Entity {
         dispose();
     }
 
-    private float[] calculateVertices(boolean inPixels, long seed) {
+    private float[] calculateVertices(long seed) {
         float[] vertices = new float[VERTICES * 2];
         float angleDiff = (2 * MathUtils.PI) / VERTICES;
-        int minRadius = 0; // Pixels
-        int maxRadius = 0; // Pixels
+        int minRadius = 0; // Meters
+        int maxRadius = 0;
         switch(type) {
             case SMALL:
-                maxRadius = 30;
-                minRadius = 10;
+                maxRadius = Player.PLAYER_SCALE;
+                minRadius = 3;
                 break;
             case MEDIUM:
-                maxRadius = 70;
-                minRadius = 50;
+                maxRadius = 20;
+                minRadius = 10;
                 break;
             case LARGE:
-                maxRadius = 120;
-                minRadius = 70;
+                maxRadius = 50;
+                minRadius = 20;
         }
         float currentAngle = 0;
         MathUtils.random.setSeed(seed);
         for(int i = 0; i < VERTICES * 2; i += 2) {
             float radius = MathUtils.random(minRadius, maxRadius);
-            if(!inPixels)
-                radius = Utils.toWorld(radius);
             vertices[i] = radius * MathUtils.cos(currentAngle);
             vertices[i + 1] = radius * MathUtils.sin(currentAngle);
             currentAngle += angleDiff;

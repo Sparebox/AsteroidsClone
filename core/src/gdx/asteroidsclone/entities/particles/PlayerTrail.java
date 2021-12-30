@@ -12,20 +12,20 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class PlayerTrail extends Particle {
 
-    public PlayerTrail(int x, int y, Entity player) {
-        this.radius = 5;
+    public PlayerTrail(float x, float y, Entity player) {
+        this.radius = 1f;
         this.timeToLive = 0.5f;
         this.initVel = 50;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
-        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
+        this.bd.position.set(x, y);
         float angle = player.getBody().getAngle() - MathUtils.PI / 2;
         float rand = MathUtils.randomSign() * MathUtils.random(0f, MathUtils.PI / 4);
         angle += rand;
         this.bd.linearVelocity.set(new Vector2(initVel * MathUtils.cos(angle), initVel * MathUtils.sin(angle)));
 
         this.cs = new CircleShape();
-        this.cs.setRadius(Utils.toWorld(radius));
+        this.cs.setRadius(radius);
 
         this.fd = new FixtureDef();
         this.fd.shape = cs;
@@ -43,8 +43,8 @@ public class PlayerTrail extends Particle {
 
     @Override
     public void render(ShapeRenderer sr) {
-        int x = Utils.toPixel(body.getPosition().x);
-        int y = Utils.toPixel(body.getPosition().y);
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
         sr.circle(x, y, radius);
     }
 }
