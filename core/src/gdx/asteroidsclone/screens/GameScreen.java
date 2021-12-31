@@ -47,6 +47,7 @@ public class GameScreen extends ScreenAdapter {
     private BitmapFont font;
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
+    private boolean gameOver = false;
 
     public GameScreen() {
         Entity.gameScreen = this;
@@ -73,8 +74,12 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void update() {
+        if(gameOver) {
+            Main.INSTANCE.setScreen(new GameOverScreen());
+            return;
+        }
         world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Main.INSTANCE.setScreen(new MenuScreen());
         }
         if(!entitiesToDelete.isEmpty()) {
@@ -142,6 +147,14 @@ public class GameScreen extends ScreenAdapter {
         world.dispose();
         font.dispose();
         debugRenderer.dispose();
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     public Set<Entity> getEntities() {

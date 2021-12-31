@@ -32,7 +32,7 @@ public class AsteroidFactory {
                 currentLevel = Level.values()[currentLevel.ordinal() + 1];
                 levelSpawned = 0;
             } else {
-                System.out.println("Game won"); //TODO: Implement game over functionality
+                //TODO: Implement game over functionality
                 Gdx.app.exit();
             }
         }

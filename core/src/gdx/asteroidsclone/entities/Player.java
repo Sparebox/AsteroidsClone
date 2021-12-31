@@ -14,6 +14,7 @@ import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.entities.particles.PlayerTrail;
 import gdx.asteroidsclone.physics.ContactType;
+import gdx.asteroidsclone.screens.GameOverScreen;
 import gdx.asteroidsclone.utils.Utils;
 
 public class Player extends Entity {
@@ -135,12 +136,8 @@ public class Player extends Entity {
     public void hit() {
         blinking = true;
         lives--;
-        if(lives == 0) {
-            Gdx.app.exit();
-            System.exit(0);
-            // TODO: Implement game over functionality
-        }
-
+        if(lives == 0)
+            gameScreen.setGameOver(true);
     }
 
     private float[] calculateVertices() {
