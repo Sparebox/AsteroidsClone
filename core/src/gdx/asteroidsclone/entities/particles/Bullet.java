@@ -41,8 +41,8 @@ public class Bullet extends Particle {
     public void update() {
         if(body == null)
             return;
-        if(body.getPosition().x > Main.WORLD_WIDTH ||
-        body.getPosition().y > Main.WORLD_HEIGHT ||
+        if(body.getPosition().x > Main.INSTANCE.WORLD_WIDTH ||
+        body.getPosition().y > Main.INSTANCE.WORLD_HEIGHT ||
         body.getPosition().x < 0 || body.getPosition().y < 0) {
             dispose();
         }

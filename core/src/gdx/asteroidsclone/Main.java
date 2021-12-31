@@ -2,37 +2,46 @@ package gdx.asteroidsclone;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import gdx.asteroidsclone.screens.GameOverScreen;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.screens.MenuScreen;
 import gdx.asteroidsclone.utils.Utils;
 
 public class Main extends Game {
 
-	private static final float ASPECT_RATIO = 16f / 9f;
-
-	public static final int WORLD_WIDTH = (int) (200 * ASPECT_RATIO); // In meters
-	public static final int WORLD_HEIGHT = 200;
-
-
 	public static Main INSTANCE;
 
-	private MenuScreen menuScreen;
-	private GameScreen gameScreen;
-	private Camera camera;
+	public final float ASPECT_RATIO;
+	public final int WORLD_WIDTH; // In meters
+	public final int WORLD_HEIGHT;
 
-	public Main() {
+	public ShapeRenderer sr;
+	public SpriteBatch sb;
+	public FreeTypeFontGenerator fontGenerator;
+	public FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+
+	public Main(int width, int height) {
 		INSTANCE = this;
+		ASPECT_RATIO = (float) width / (float) height;
+		WORLD_WIDTH = (int) (200 * ASPECT_RATIO);
+		WORLD_HEIGHT = 200;
+
 	}
 
 	@Override
 	public void create() {
-		camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
-		camera.translate(WORLD_WIDTH / 2f, WORLD_HEIGHT / 2f, 0);
-		camera.update();
-		gameScreen = new GameScreen(camera);
-		setScreen(gameScreen);
+		sr = new ShapeRenderer();
+		sb = new SpriteBatch();
+		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/VCR_OSD_MONO.ttf"));
+		fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		setScreen(new MenuScreen());
 	}
 
 	@Override
@@ -43,7 +52,10 @@ public class Main extends Game {
 	
 	@Override
 	public void dispose() {
-		gameScreen.dispose();
+		getScreen().dispose();
+		sr.dispose();
+		sb.dispose();
+		fontGenerator.dispose();
 	}
 
 }

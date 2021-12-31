@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.viewport.*;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.*;
 import gdx.asteroidsclone.physics.CustomContactListener;
@@ -26,55 +28,54 @@ public class GameScreen extends ScreenAdapter {
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
     public static final float FPS = 60f;
-    public static final int FONT_SIZE = 30;
-    public static final Color FONT_COLOR = Color.WHITE;
 
     public static World world;
+
+    private final int FONT_SIZE = 30;
+    private final Color FONT_COLOR = Color.WHITE;
 
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
     private Player player;
     private Camera gameCamera;
-    private ShapeRenderer sr;
-    private SpriteBatch sb;
-    private FreeTypeFontGenerator fontGenerator;
-    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    private Camera UIcamera;
+    private ShapeRenderer sr = Main.INSTANCE.sr;
+    private SpriteBatch sb = Main.INSTANCE.sb;
+    private FreeTypeFontGenerator fontGenerator = Main.INSTANCE.fontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = Main.INSTANCE.fontParameter;
     private BitmapFont font;
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
-    private Camera UIcamera;
 
-    public GameScreen(Camera camera) {
+    public GameScreen() {
         Entity.gameScreen = this;
-        this.gameCamera = camera;
-        this.UIcamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        this.UIcamera.translate(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        this.UIcamera.update();
-        this.sr = new ShapeRenderer();
-        this.sr.setProjectionMatrix(gameCamera.combined);
-        this.sb = new SpriteBatch();
-        this.sb.setProjectionMatrix(UIcamera.combined);
-        this.fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/VCR_OSD_MONO.ttf"));
-        this.fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        this.fontParameter.size = FONT_SIZE;
-        this.fontParameter.color = FONT_COLOR;
-        this.font = fontGenerator.generateFont(this.fontParameter);
+        gameCamera = new OrthographicCamera(Main.INSTANCE.WORLD_WIDTH, Main.INSTANCE.WORLD_HEIGHT);
+        gameCamera.translate(Main.INSTANCE.WORLD_WIDTH / 2f, Main.INSTANCE.WORLD_HEIGHT / 2f, 0);
+        gameCamera.update();
+        UIcamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        UIcamera.translate(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
+        UIcamera.update();
+        sr.setProjectionMatrix(gameCamera.combined);
+        sb.setProjectionMatrix(UIcamera.combined);
+        fontParameter.size = FONT_SIZE;
+        fontParameter.color = FONT_COLOR;
+        font = fontGenerator.generateFont(fontParameter);
         world = new World(Vector2.Zero, false);
         world.setContactListener(new CustomContactListener(this));
-        this.debugRenderer = new Box2DDebugRenderer();
-        this.asteroidFactory = new AsteroidFactory(this);
-        this.entities = new HashSet<>();
-        this.entitiesToDelete = new HashSet<>();
-        this.entitiesToAdd = new HashSet<>();
-        this.player = new Player(Main.WORLD_WIDTH / 2, Main.WORLD_HEIGHT / 2);
-        this.entitiesToAdd.add(player);
+        debugRenderer = new Box2DDebugRenderer();
+        asteroidFactory = new AsteroidFactory(this);
+        entities = new HashSet<>();
+        entitiesToDelete = new HashSet<>();
+        entitiesToAdd = new HashSet<>();
+        player = new Player(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
+        entitiesToAdd.add(player);
     }
 
     private void update() {
         world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+            Main.INSTANCE.setScreen(new MenuScreen());
         }
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
@@ -121,10 +122,12 @@ public class GameScreen extends ScreenAdapter {
     }
 
     @Override
+    public void hide() {
+        dispose();
+    }
+
+    @Override
     public void dispose() {
-        sr.dispose();
-        sb.dispose();
-        debugRenderer.dispose();
         for(Entity e : entities) {
             e.dispose();
         }
@@ -134,8 +137,11 @@ public class GameScreen extends ScreenAdapter {
             world.destroyBody(e.getBody());
             entities.remove(e);
         }
+        entities.clear();
         entitiesToDelete.clear();
         world.dispose();
+        font.dispose();
+        debugRenderer.dispose();
     }
 
     public Set<Entity> getEntities() {

@@ -91,16 +91,16 @@ public class Player extends Entity {
             }
         }
 
-        if(x > Main.WORLD_WIDTH) {
+        if(x > Main.INSTANCE.WORLD_WIDTH) {
             body.setTransform(0f, body.getPosition().y,body.getAngle());
         } else if(x < 0) {
-            body.setTransform(Main.WORLD_WIDTH, body.getPosition().y,body.getAngle());
+            body.setTransform(Main.INSTANCE.WORLD_WIDTH, body.getPosition().y,body.getAngle());
         }
 
-        if(y > Main.WORLD_HEIGHT) {
+        if(y > Main.INSTANCE.WORLD_HEIGHT) {
             body.setTransform(body.getPosition().x, 0f, body.getAngle());
         } else if(y < 0) {
-            body.setTransform(body.getPosition().x, Main.WORLD_HEIGHT, body.getAngle());
+            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT, body.getAngle());
         }
     }
 

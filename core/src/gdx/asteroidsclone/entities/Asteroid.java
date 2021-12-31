@@ -55,15 +55,15 @@ public class Asteroid extends Entity {
 
     @Override
     public void update() {
-        if(body.getPosition().x > Main.WORLD_WIDTH + 25) {
+        if(body.getPosition().x > Main.INSTANCE.WORLD_WIDTH + 25) {
             body.setTransform(-25,body.getPosition().y, body.getAngle());
         } else if(body.getPosition().x < -25) {
-            body.setTransform(Main.WORLD_WIDTH + 25,body.getPosition().y, body.getAngle());
+            body.setTransform(Main.INSTANCE.WORLD_WIDTH + 25,body.getPosition().y, body.getAngle());
         }
-        if(body.getPosition().y > Main.WORLD_HEIGHT + 25) {
+        if(body.getPosition().y > Main.INSTANCE.WORLD_HEIGHT + 25) {
             body.setTransform(body.getPosition().x, -25, body.getAngle());
         } else if(body.getPosition().y < -25) {
-            body.setTransform(body.getPosition().x, Main.WORLD_HEIGHT + 25, body.getAngle());
+            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT+ 25, body.getAngle());
         }
     }
 
