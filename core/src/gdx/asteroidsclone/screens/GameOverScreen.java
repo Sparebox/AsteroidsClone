@@ -20,7 +20,7 @@ public class GameOverScreen extends ScreenAdapter {
     private TextButton backButton;
 
     public GameOverScreen() {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.UI_WIDTH, Main.INSTANCE.UI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
@@ -42,7 +42,7 @@ public class GameOverScreen extends ScreenAdapter {
     public void render(float deltaTime) {
         Gdx.gl30.glClearColor(0,0,0,1);
         Gdx.gl30.glClear(GL30.GL_COLOR_BUFFER_BIT);
-        stage.act();
+        stage.act(deltaTime);
         stage.draw();
     }
 

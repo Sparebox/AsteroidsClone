@@ -2,6 +2,7 @@ package gdx.asteroidsclone.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -14,7 +15,6 @@ import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.entities.particles.PlayerTrail;
 import gdx.asteroidsclone.physics.ContactType;
-import gdx.asteroidsclone.screens.GameOverScreen;
 import gdx.asteroidsclone.utils.Utils;
 
 public class Player extends Entity {
@@ -30,6 +30,11 @@ public class Player extends Entity {
     private static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
     private static final int BLINK_INTERVAL = 100; // In milliseconds
 
+    private Sound burnSFX;
+    private Sound shootSFX;
+    private Sound hitSFX;
+    private Sound lostSFX;
+    private long burnID;
     private Polygon shape;
     private int particleOutputTimer;
     private int fireRateTimer;
@@ -39,6 +44,7 @@ public class Player extends Entity {
     private long lastTime = System.currentTimeMillis();
     private boolean redOn = true;
     private boolean blinking;
+    private boolean thrusting;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -61,6 +67,11 @@ public class Player extends Entity {
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices());
+
+        burnSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/burn.wav"));
+        shootSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
+        hitSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/hit.wav"));
+        lostSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/lost.wav"));
     }
 
     @Override
@@ -79,7 +90,16 @@ public class Player extends Entity {
                 gameScreen.getEntitiesToAdd().add(new PlayerTrail( x + inverseDir.x,  y + inverseDir.y, this));
                 particleOutputTimer = 0;
             }
-        }
+            thrusting = true;
+        } else
+            thrusting = false;
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            burnID = burnSFX.play(0.1f);
+            burnSFX.setLooping(burnID, true);
+        } else if(!thrusting)
+            burnSFX.stop(burnID);
+
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
             body.applyTorque(TURNING_TORQUE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
@@ -89,6 +109,7 @@ public class Player extends Entity {
             if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
                 gameScreen.getEntitiesToAdd().add(new Bullet(x + bulletVector.x, y + bulletVector.y, this));
                 fireRateTimer = 0;
+                shootSFX.play(0.1f);
             }
         }
 
@@ -133,11 +154,21 @@ public class Player extends Entity {
         sr.identity();
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        burnSFX.dispose();
+    }
+
     public void hit() {
+        hitSFX.play(0.1f);
         blinking = true;
         lives--;
-        if(lives == 0)
+        if(lives == 0) {
+            lostSFX.play(0.1f);
             gameScreen.setGameOver(true);
+        }
+
     }
 
     private float[] calculateVertices() {
@@ -179,3 +210,4 @@ public class Player extends Entity {
     }
 
 }
+

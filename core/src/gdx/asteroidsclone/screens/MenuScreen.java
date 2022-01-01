@@ -26,7 +26,7 @@ public class MenuScreen extends ScreenAdapter {
     private Skin skin = Main.INSTANCE.skin;
 
     public MenuScreen() {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.UI_WIDTH, Main.INSTANCE.UI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
@@ -66,7 +66,7 @@ public class MenuScreen extends ScreenAdapter {
             Gdx.app.exit();
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
-        stage.act();
+        stage.act(deltaTime);
         stage.draw();
     }
 

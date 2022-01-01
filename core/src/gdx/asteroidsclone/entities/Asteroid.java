@@ -1,6 +1,7 @@
 package gdx.asteroidsclone.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -20,6 +21,7 @@ public class Asteroid extends Entity {
     private static final int VERTICES = 8;
     private static final int INIT_VEL = 20; // Meters per second
 
+    private Sound breakSFX;
     private Polygon shape;
     private AsteroidType type;
 
@@ -47,6 +49,8 @@ public class Asteroid extends Entity {
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices(seed));
         AsteroidFactory.asteroidCount++;
+
+        breakSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/break.wav"));
     }
 
     public Asteroid(Vector2 pos, AsteroidType type) {
@@ -80,7 +84,7 @@ public class Asteroid extends Entity {
 
     @Override
     public void dispose() {
-        gameScreen.getEntitiesToDelete().add(this);
+        super.dispose();
         AsteroidFactory.asteroidCount--;
     }
 
@@ -126,6 +130,7 @@ public class Asteroid extends Entity {
                 }
                 break;
         }
+        breakSFX.play(0.1f);
         dispose();
     }
 

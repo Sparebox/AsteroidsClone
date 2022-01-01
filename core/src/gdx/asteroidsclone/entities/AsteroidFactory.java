@@ -1,9 +1,11 @@
 package gdx.asteroidsclone.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.screens.GameScreen;
+import gdx.asteroidsclone.screens.MenuScreen;
 
 public class AsteroidFactory {
 
@@ -15,9 +17,13 @@ public class AsteroidFactory {
     private int levelSpawned;
     private long lastTime = System.currentTimeMillis();
     private Level currentLevel = Level.LEVEL1;
+    private Sound levelChangeSFX;
+    private Sound winSFX;
 
     public AsteroidFactory(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
+        levelChangeSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/level_change.wav"));
+        winSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/won.wav"));
     }
 
     public void update() {
@@ -30,10 +36,11 @@ public class AsteroidFactory {
         if(asteroidCount == 0 && levelSpawned == currentLevel.ASTEROID_COUNT) {
             if(currentLevel.ordinal() < Level.LEVEl3.ordinal()) {
                 currentLevel = Level.values()[currentLevel.ordinal() + 1];
+                levelChangeSFX.play(0.1f);
                 levelSpawned = 0;
             } else {
-                //TODO: Implement game over functionality
-                Gdx.app.exit();
+                winSFX.play(0.1f);
+                Main.INSTANCE.setScreen(new MenuScreen());
             }
         }
     }
@@ -43,9 +50,9 @@ public class AsteroidFactory {
         int x = MathUtils.random(25, Main.INSTANCE.WORLD_WIDTH - 25);
         int y = MathUtils.random(25, Main.INSTANCE.WORLD_HEIGHT - 25);
         if(onX)
-            y = MathUtils.randomBoolean() ? -25 : Main.INSTANCE.WORLD_HEIGHT + 25;
+            y = MathUtils.randomBoolean() ? -5 : Main.INSTANCE.WORLD_HEIGHT + 5;
         else
-            x = MathUtils.randomBoolean() ? - 25 : Main.INSTANCE.WORLD_WIDTH + 25;
+            x = MathUtils.randomBoolean() ? -5 : Main.INSTANCE.WORLD_WIDTH + 5;
         gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
         levelSpawned++;
         }

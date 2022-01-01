@@ -16,8 +16,8 @@ public class Main extends Game {
 	public final float ASPECT_RATIO;
 	public final int WORLD_WIDTH; // In meters
 	public final int WORLD_HEIGHT;
-	public final float UI_WIDTH;
-	public final float UI_HEIGHT;
+	public final float GUI_WIDTH;
+	public final float GUI_HEIGHT;
 
 	public Skin skin;
 	public ShapeRenderer sr;
@@ -31,8 +31,8 @@ public class Main extends Game {
 		ASPECT_RATIO = (float) width / (float) height;
 		WORLD_HEIGHT = 200;
 		WORLD_WIDTH = (int) (WORLD_HEIGHT * ASPECT_RATIO);
-		UI_HEIGHT = height;
-		UI_WIDTH = width;
+		GUI_HEIGHT = height;
+		GUI_WIDTH = width;
 	}
 
 	@Override
