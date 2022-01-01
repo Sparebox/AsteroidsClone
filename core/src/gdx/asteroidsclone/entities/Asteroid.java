@@ -130,7 +130,7 @@ public class Asteroid extends Entity {
                 }
                 break;
         }
-        breakSFX.play(0.1f);
+        breakSFX.play(Main.SETTINGS.getVolume());
         dispose();
     }
 

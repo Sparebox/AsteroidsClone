@@ -95,7 +95,7 @@ public class Player extends Entity {
             thrusting = false;
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            burnID = burnSFX.play(0.1f);
+            burnID = burnSFX.play(Main.SETTINGS.getVolume());
             burnSFX.setLooping(burnID, true);
         } else if(!thrusting)
             burnSFX.stop(burnID);
@@ -109,7 +109,7 @@ public class Player extends Entity {
             if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
                 gameScreen.getEntitiesToAdd().add(new Bullet(x + bulletVector.x, y + bulletVector.y, this));
                 fireRateTimer = 0;
-                shootSFX.play(0.1f);
+                shootSFX.play(Main.SETTINGS.getVolume());
             }
         }
 
@@ -161,11 +161,11 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        hitSFX.play(0.1f);
+        hitSFX.play(Main.SETTINGS.getVolume());
         blinking = true;
         lives--;
         if(lives == 0) {
-            lostSFX.play(0.1f);
+            lostSFX.play(Main.SETTINGS.getVolume());
             gameScreen.setGameOver(true);
         }
 

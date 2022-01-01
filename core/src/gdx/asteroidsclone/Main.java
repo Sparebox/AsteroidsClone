@@ -2,11 +2,18 @@ package gdx.asteroidsclone;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import gdx.asteroidsclone.screens.MenuScreen;
+
+import java.awt.*;
 
 public class Main extends Game {
 
@@ -19,7 +26,7 @@ public class Main extends Game {
 	public final float GUI_WIDTH;
 	public final float GUI_HEIGHT;
 
-	public Skin skin;
+	public AssetManager assetManager;
 	public ShapeRenderer sr;
 	public SpriteBatch sb;
 	public FreeTypeFontGenerator fontGenerator;
@@ -37,11 +44,12 @@ public class Main extends Game {
 
 	@Override
 	public void create() {
+		assetManager = new AssetManager();
+		loadAssets();
 		sr = new ShapeRenderer();
 		sb = new SpriteBatch();
-		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/VCR_OSD_MONO.ttf"));
+		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal(Assets.FONT));
 		fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		skin = new Skin(Gdx.files.internal("skins/skin.json"));
 		setScreen(new MenuScreen());
 	}
 
@@ -57,7 +65,20 @@ public class Main extends Game {
 		sr.dispose();
 		sb.dispose();
 		fontGenerator.dispose();
-		skin.dispose();
+		assetManager.dispose();
+	}
+
+	private void loadAssets() {
+		assetManager.load(Assets.SKIN, Skin.class);
+		assetManager.load(Assets.THEME, Music.class);
+		assetManager.load(Assets.LOST, Sound.class);
+		assetManager.load(Assets.BREAK, Sound.class);
+		assetManager.load(Assets.BURN, Sound.class);
+		assetManager.load(Assets.HIT, Sound.class);
+		assetManager.load(Assets.LEVEL_CHANGE, Sound.class);
+		assetManager.load(Assets.SHOOT, Sound.class);
+		assetManager.load(Assets.WON, Sound.class);
+		assetManager.finishLoading();
 	}
 
 }
