@@ -1,7 +1,7 @@
 package gdx.asteroidsclone.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -9,19 +9,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Debris;
 import gdx.asteroidsclone.physics.ContactType;
-import gdx.asteroidsclone.screens.GameScreen;
-import gdx.asteroidsclone.utils.Utils;
 
 public class Asteroid extends Entity {
 
     private static final int PARTICLES = 10; // Particle count when hit
     private static final int VERTICES = 8;
     private static final int INIT_VEL = 20; // Meters per second
+    private static final Sound BREAK_SFX = Main.INSTANCE.assetManager.get(Assets.BREAK);
 
-    private Sound breakSFX;
     private Polygon shape;
     private AsteroidType type;
 
@@ -49,8 +48,6 @@ public class Asteroid extends Entity {
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices(seed));
         AsteroidFactory.asteroidCount++;
-
-        breakSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/break.wav"));
     }
 
     public Asteroid(Vector2 pos, AsteroidType type) {
@@ -58,16 +55,28 @@ public class Asteroid extends Entity {
     }
 
     @Override
-    public void update() {
-        if(body.getPosition().x > Main.INSTANCE.WORLD_WIDTH + 25) {
-            body.setTransform(-25,body.getPosition().y, body.getAngle());
-        } else if(body.getPosition().x < -25) {
-            body.setTransform(Main.INSTANCE.WORLD_WIDTH + 25,body.getPosition().y, body.getAngle());
+    public void update(float deltaTime) {
+        int transitionBuffer = 0;  // The distance to appear and disappear from borders
+        switch(type) {
+            case SMALL:
+                transitionBuffer = 10;
+                break;
+            case MEDIUM:
+                transitionBuffer = 20;
+                break;
+            case LARGE:
+                transitionBuffer = 40;
+                break;
         }
-        if(body.getPosition().y > Main.INSTANCE.WORLD_HEIGHT + 25) {
-            body.setTransform(body.getPosition().x, -25, body.getAngle());
-        } else if(body.getPosition().y < -25) {
-            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT+ 25, body.getAngle());
+        if(body.getPosition().x > Main.INSTANCE.WORLD_WIDTH + transitionBuffer) {
+            body.setTransform(-transitionBuffer,body.getPosition().y, body.getAngle());
+        } else if(body.getPosition().x < -transitionBuffer) {
+            body.setTransform(Main.INSTANCE.WORLD_WIDTH + transitionBuffer,body.getPosition().y, body.getAngle());
+        }
+        if(body.getPosition().y > Main.INSTANCE.WORLD_HEIGHT + transitionBuffer) {
+            body.setTransform(body.getPosition().x, -transitionBuffer, body.getAngle());
+        } else if(body.getPosition().y < -transitionBuffer) {
+            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT + transitionBuffer, body.getAngle());
         }
     }
 
@@ -81,6 +90,9 @@ public class Asteroid extends Entity {
         sr.polygon(shape.getVertices());
         sr.identity();
     }
+
+    @Override
+    public void render(SpriteBatch sb) {}
 
     @Override
     public void dispose() {
@@ -100,9 +112,11 @@ public class Asteroid extends Entity {
                 // 1 point per distance of 20 meters
                 float distance = body.getPosition().dst(player.getBody().getPosition()) / 20f;
                 player.setScore(player.getScore() + MathUtils.round(distance));
+                gameScreen.getEntitiesToAdd().add(new ScoreIndicator(x, y, MathUtils.round(distance)));
                 break;
             case MEDIUM:
                 player.setScore(player.getScore() + 5);
+                gameScreen.getEntitiesToAdd().add(new ScoreIndicator(x, y, 5));
                 for(int i = 0; i < 2; i++) {
                     int sign = i % 2 == 0 ? 1 : -1;
                     int separation = 5;
@@ -117,6 +131,7 @@ public class Asteroid extends Entity {
                 break;
             case LARGE:
                 player.setScore(player.getScore() + 10);
+                gameScreen.getEntitiesToAdd().add(new ScoreIndicator(x, y, 10));
                 for(int i = 0; i < 2; i++) {
                     int sign = i % 2 == 0 ? 1 : -1;
                     int separation = 15;
@@ -130,7 +145,7 @@ public class Asteroid extends Entity {
                 }
                 break;
         }
-        breakSFX.play(Main.SETTINGS.getVolume());
+        BREAK_SFX.play(Main.SETTINGS.getVolume());
         dispose();
     }
 

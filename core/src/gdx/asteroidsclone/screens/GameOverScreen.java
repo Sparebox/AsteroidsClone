@@ -1,6 +1,7 @@
 package gdx.asteroidsclone.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -13,22 +14,29 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
+import gdx.asteroidsclone.entities.Level;
 
 public class GameOverScreen extends ScreenAdapter {
 
     private Stage stage;
     private Table table;
     private Skin skin = Main.INSTANCE.assetManager.get(Assets.SKIN);
-    private Label titleLabel;
     private TextButton backButton;
 
-    public GameOverScreen() {
+    public GameOverScreen(int score, Level currentLevel, boolean victory) {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-        titleLabel = new Label("Game Over", skin);
+        var titleLabel = new Label("", skin);
+        if(victory)
+            titleLabel.setText("Game won");
+        else
+            titleLabel.setText("Game lost");
+        var scoreLabel = new Label("Score:", skin);
+        var topScoreLabel = new Label("Top score:", skin);
+        var levelLabel = new Label(currentLevel.toString(), skin);
         backButton = new TextButton("Main Menu", skin);
         backButton.addListener(new ClickListener() {
             @Override
@@ -36,13 +44,26 @@ public class GameOverScreen extends ScreenAdapter {
                 Main.INSTANCE.setScreen(new MenuScreen());
             }
         });
-        table.add(titleLabel);
+        var scoreVal = new Label(Integer.toString(score), skin);
+        var topScoreVal = new Label(Integer.toString(Main.SETTINGS.getTopScore()), skin);
+        table.add(titleLabel).colspan(2);
         table.row().pad(20,0,0,0);
-        table.add(backButton).width(MenuScreen.BUTTON_WIDTH);
+        table.add(levelLabel).colspan(2);
+        table.row().pad(10,0,10,0);
+        table.add(scoreLabel).left();
+        table.add(scoreVal).pad(0,20,0,0);
+        table.row().pad(10,0,10,0);
+        table.add(topScoreLabel).left();
+        table.add(topScoreVal).pad(0,20,0,0);
+        table.row().pad(10,0,10,0);
+        table.add(backButton).width(MenuScreen.BUTTON_WIDTH).colspan(2);
+        Gdx.input.setCursorCatched(false);
     }
 
     @Override
     public void render(float deltaTime) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            Main.INSTANCE.setScreen(new MenuScreen());
         Gdx.gl30.glClearColor(0,0,0,1);
         Gdx.gl30.glClear(GL30.GL_COLOR_BUFFER_BIT);
         stage.act(deltaTime);

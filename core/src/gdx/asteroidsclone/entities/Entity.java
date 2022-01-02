@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.*;
 import gdx.asteroidsclone.screens.GameScreen;
@@ -15,13 +16,19 @@ public abstract class Entity {
     protected Body body;
     protected BodyDef bd;
     protected FixtureDef fd;
+    protected boolean disposed;
 
-    public abstract void update();
+    public abstract void update(float deltaTime);
 
     public abstract void render(ShapeRenderer sr);
 
+    public abstract void render(SpriteBatch sb);
+
     public void dispose() {
+        if(disposed)
+            return;
         gameScreen.getEntitiesToDelete().add(this);
+        disposed = true;
     }
 
     public Body getBody() {

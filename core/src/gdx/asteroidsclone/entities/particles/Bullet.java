@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities.particles;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -38,7 +39,7 @@ public class Bullet extends Particle {
     }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
         if(body == null)
             return;
         if(body.getPosition().x > Main.INSTANCE.WORLD_WIDTH ||
@@ -58,8 +59,11 @@ public class Bullet extends Particle {
     }
 
     @Override
+    public void render(SpriteBatch sb) {}
+
+    @Override
     public void dispose() {
-        gameScreen.getEntitiesToDelete().add(this);
+        super.dispose();
         bulletCount--;
     }
 

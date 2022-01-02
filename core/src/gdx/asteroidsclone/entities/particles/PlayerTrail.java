@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities.particles;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -37,7 +38,7 @@ public class PlayerTrail extends Particle {
     }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
         updateLifetime();
     }
 
@@ -47,4 +48,7 @@ public class PlayerTrail extends Particle {
         float y = body.getPosition().y;
         sr.circle(x, y, radius);
     }
+
+    @Override
+    public void render(SpriteBatch sb) {}
 }

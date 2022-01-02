@@ -3,6 +3,7 @@ package gdx.asteroidsclone.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
+import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.screens.GameScreen;
 import gdx.asteroidsclone.screens.MenuScreen;
@@ -10,6 +11,8 @@ import gdx.asteroidsclone.screens.MenuScreen;
 public class AsteroidFactory {
 
     private static final int ASTEROID_INTERVAL = 4000; // In milliseconds
+    private static final Sound LEVEL_CHANGE_SFX = Main.INSTANCE.assetManager.get(Assets.LEVEL_CHANGE);
+    private static final Sound WIN_SFX = Main.INSTANCE.assetManager.get(Assets.WON);
 
     public static int asteroidCount;
 
@@ -17,13 +20,9 @@ public class AsteroidFactory {
     private int levelSpawned;
     private long lastTime = System.currentTimeMillis();
     private Level currentLevel = Level.LEVEL1;
-    private Sound levelChangeSFX;
-    private Sound winSFX;
 
     public AsteroidFactory(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
-        levelChangeSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/level_change.wav"));
-        winSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/won.wav"));
     }
 
     public void update() {
@@ -36,11 +35,12 @@ public class AsteroidFactory {
         if(asteroidCount == 0 && levelSpawned == currentLevel.ASTEROID_COUNT) {
             if(currentLevel.ordinal() < Level.LEVEl3.ordinal()) {
                 currentLevel = Level.values()[currentLevel.ordinal() + 1];
-                levelChangeSFX.play(0.1f);
+                LEVEL_CHANGE_SFX.play(Main.SETTINGS.getVolume());
                 levelSpawned = 0;
             } else {
-                winSFX.play(0.1f);
-                Main.INSTANCE.setScreen(new MenuScreen());
+                WIN_SFX.play(Main.SETTINGS.getVolume());
+                Player.BURN_SFX.stop();
+                gameScreen.endGame(true);
             }
         }
     }

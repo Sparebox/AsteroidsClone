@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.entities.particles;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -32,7 +33,7 @@ public class Debris extends Particle {
     }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
         updateLifetime();
     }
 
@@ -42,4 +43,7 @@ public class Debris extends Particle {
         float y = body.getPosition().y;
         sr.circle(x, y, radius);
     }
+
+    @Override
+    public void render(SpriteBatch sb) {}
 }

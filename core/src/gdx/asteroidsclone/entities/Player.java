@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.entities.particles.PlayerTrail;
@@ -20,6 +22,10 @@ import gdx.asteroidsclone.utils.Utils;
 public class Player extends Entity {
 
     public static final int PLAYER_SCALE = 5; // In meters
+    public static final Sound BURN_SFX = Main.INSTANCE.assetManager.get(Assets.BURN);
+    public static final Sound SHOOT_SFX = Main.INSTANCE.assetManager.get(Assets.SHOOT);
+    public static final Sound HIT_SFX = Main.INSTANCE.assetManager.get(Assets.HIT);
+    public static final Sound LOST_SFX = Main.INSTANCE.assetManager.get(Assets.LOST);
 
     private static final float THRUST = 2e3f; // In newtons
     private static final float TURNING_TORQUE = 5e3f; // In newton-meters
@@ -30,10 +36,6 @@ public class Player extends Entity {
     private static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
     private static final int BLINK_INTERVAL = 100; // In milliseconds
 
-    private Sound burnSFX;
-    private Sound shootSFX;
-    private Sound hitSFX;
-    private Sound lostSFX;
     private long burnID;
     private Polygon shape;
     private int particleOutputTimer;
@@ -67,15 +69,10 @@ public class Player extends Entity {
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices());
-
-        burnSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/burn.wav"));
-        shootSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
-        hitSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/hit.wav"));
-        lostSFX = Gdx.audio.newSound(Gdx.files.internal("sounds/lost.wav"));
     }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float angle = body.getAngle() + MathUtils.PI / 2;
@@ -95,10 +92,10 @@ public class Player extends Entity {
             thrusting = false;
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            burnID = burnSFX.play(Main.SETTINGS.getVolume());
-            burnSFX.setLooping(burnID, true);
+            burnID = BURN_SFX.play(Main.SETTINGS.getVolume());
+            BURN_SFX.setLooping(burnID, true);
         } else if(!thrusting)
-            burnSFX.stop(burnID);
+            BURN_SFX.stop(burnID);
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
             body.applyTorque(TURNING_TORQUE,true);
@@ -109,7 +106,7 @@ public class Player extends Entity {
             if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
                 gameScreen.getEntitiesToAdd().add(new Bullet(x + bulletVector.x, y + bulletVector.y, this));
                 fireRateTimer = 0;
-                shootSFX.play(Main.SETTINGS.getVolume());
+                SHOOT_SFX.play(Main.SETTINGS.getVolume());
             }
         }
 
@@ -155,18 +152,21 @@ public class Player extends Entity {
     }
 
     @Override
+    public void render(SpriteBatch sb) {}
+
+    @Override
     public void dispose() {
         super.dispose();
-        burnSFX.dispose();
     }
 
     public void hit() {
-        hitSFX.play(Main.SETTINGS.getVolume());
+        HIT_SFX.play(Main.SETTINGS.getVolume());
         blinking = true;
         lives--;
         if(lives == 0) {
-            lostSFX.play(Main.SETTINGS.getVolume());
-            gameScreen.setGameOver(true);
+            LOST_SFX.play(Main.SETTINGS.getVolume());
+            BURN_SFX.stop();
+            gameScreen.endGame(false);
         }
 
     }
@@ -209,5 +209,8 @@ public class Player extends Entity {
         return lives;
     }
 
+    public boolean isBlinking() {
+        return blinking;
+    }
 }
 

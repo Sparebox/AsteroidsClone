@@ -58,7 +58,6 @@ public class MenuScreen extends ScreenAdapter {
         startButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                THEME.stop();
                 Main.INSTANCE.setScreen(new GameScreen());
             }
         });
@@ -96,12 +95,15 @@ public class MenuScreen extends ScreenAdapter {
         THEME.play();
         THEME.setVolume(Main.SETTINGS.getVolume());
         THEME.setLooping(true);
+        Gdx.input.setCursorCatched(false);
     }
 
     @Override
     public void render(float deltaTime) {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             Gdx.app.exit();
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER))
+            Main.INSTANCE.setScreen(new GameScreen());
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         stage.act(deltaTime);

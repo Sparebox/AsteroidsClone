@@ -1,6 +1,5 @@
 package gdx.asteroidsclone.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -15,9 +14,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.viewport.*;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.*;
+import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.physics.CustomContactListener;
 
 import java.util.HashSet;
@@ -37,6 +36,7 @@ public class GameScreen extends ScreenAdapter {
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
+    private Set<ScoreIndicator> scoreIndicators;
     private Player player;
     private Camera gameCamera;
     private Camera UIcamera;
@@ -48,6 +48,7 @@ public class GameScreen extends ScreenAdapter {
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
     private boolean gameOver = false;
+    private boolean gameVictory = false;
 
     public GameScreen() {
         Entity.gameScreen = this;
@@ -69,48 +70,60 @@ public class GameScreen extends ScreenAdapter {
         entities = new HashSet<>();
         entitiesToDelete = new HashSet<>();
         entitiesToAdd = new HashSet<>();
+        scoreIndicators = new HashSet<>();
         player = new Player(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
         entitiesToAdd.add(player);
+        Gdx.input.setCursorCatched(true);
+        MenuScreen.THEME.stop();
     }
 
-    private void update() {
+    private void update(float deltaTime) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            Main.INSTANCE.setScreen(new MenuScreen());
+            return;
+        }
         if(gameOver) {
-            Main.INSTANCE.setScreen(new GameOverScreen());
+            if(player.getScore() > Main.SETTINGS.getTopScore())
+                Main.SETTINGS.setTopScore(player.getScore());
+            Main.INSTANCE.setScreen(new GameOverScreen(player.getScore(), asteroidFactory.getCurrentLevel(), gameVictory));
             return;
         }
         world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Main.INSTANCE.setScreen(new MenuScreen());
-        }
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
-                world.destroyBody(e.getBody());
-                entities.remove(e);
+                if(e.getBody() != null) {
+                    world.destroyBody(e.getBody());
+                    entities.remove(e);
+                } else if(e instanceof ScoreIndicator)
+                    entities.remove(e);
             }
             entitiesToDelete.clear();
         }
         if(!entitiesToAdd.isEmpty()) {
             for(Entity e : entitiesToAdd) {
-                e.setBody(world.createBody(e.getBd()));
-                e.getBody().createFixture(e.getFd());
-                e.getBody().setUserData(e);
-                if(e.getCs() != null)
-                    e.getCs().dispose();
-                else if(e.getPs() != null)
-                    e.getPs().dispose();
-                entities.add(e);
+                if(e.getBd() != null) {
+                    e.setBody(world.createBody(e.getBd()));
+                    e.getBody().createFixture(e.getFd());
+                    e.getBody().setUserData(e);
+                    if(e.getCs() != null)
+                        e.getCs().dispose();
+                    else if(e.getPs() != null)
+                        e.getPs().dispose();
+                    entities.add(e);
+                } else if(e instanceof ScoreIndicator)
+                    entities.add(e);
             }
             entitiesToAdd.clear();
         }
         for(Entity e : entities) {
-            e.update();
+            e.update(deltaTime);
         }
         asteroidFactory.update();
     }
 
     @Override
     public void render(float deltaTime) {
-        update();
+        update(deltaTime);
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         sr.begin(ShapeRenderer.ShapeType.Line);
@@ -119,6 +132,9 @@ public class GameScreen extends ScreenAdapter {
         }
         sr.end();
         sb.begin();
+        for(Entity e : entities) {
+            e.render(sb);
+        }
         font.draw(sb, "Score: "+player.getScore(), 10, Gdx.graphics.getHeight() - 5);
         font.draw(sb, "Lives: "+player.getLives(), 10, Gdx.graphics.getHeight() - 5 - font.getLineHeight());
         font.draw(sb, asteroidFactory.getCurrentLevel().toString(), 10,Gdx.graphics.getHeight() - 5 - 2 * font.getLineHeight());
@@ -149,12 +165,9 @@ public class GameScreen extends ScreenAdapter {
         debugRenderer.dispose();
     }
 
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
+    public void endGame(boolean victory) {
+        gameVictory = victory;
+        gameOver = true;
     }
 
     public Set<Entity> getEntities() {
@@ -171,5 +184,13 @@ public class GameScreen extends ScreenAdapter {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Camera getGameCamera() {
+        return gameCamera;
+    }
+
+    public Camera getUIcamera() {
+        return UIcamera;
     }
 }
