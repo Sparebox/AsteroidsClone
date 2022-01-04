@@ -27,19 +27,20 @@ public class Player extends Entity {
     public static final Sound HIT_SFX = Main.INSTANCE.assetManager.get(Assets.HIT);
     public static final Sound LOST_SFX = Main.INSTANCE.assetManager.get(Assets.LOST);
 
-    private static final float THRUST = 2e3f; // In newtons
-    private static final float TURNING_TORQUE = 5e3f; // In newton-meters
-    private static final float DAMPING = 1f;
-    private static final float ANGULAR_DAMPING = 5f;
-    private static final float PARTICLE_RATE = 3f;
-    private static final float FIRE_RATE = 0.1f;
-    private static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
-    private static final int BLINK_INTERVAL = 100; // In milliseconds
+    protected static final float THRUST = 2e3f; // In newtons
+    protected static final float TURNING_TORQUE = 5e3f; // In newton-meters
+    protected static final float DAMPING = 1f;
+    protected static final float ANGULAR_DAMPING = 7f;
+    protected static final float PARTICLE_RATE = 3f;
+    protected static final float FIRE_RATE = 0.1f;
+    protected static final int DMG_BLINK_COUNT = 10; // Times to blink when hit
+    protected static final int BLINK_INTERVAL = 100; // In milliseconds
+
+    protected int fireRateTimer;
 
     private long burnID;
     private Polygon shape;
     private int particleOutputTimer;
-    private int fireRateTimer;
     private int score;
     private int lives = 3;
     private int blinkCounter;
@@ -73,20 +74,14 @@ public class Player extends Entity {
 
     @Override
     public void update(float deltaTime) {
+        if(gameScreen.isGameOver())
+            return;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float angle = body.getAngle() + MathUtils.PI / 2;
         Vector2 thrustVector = new Vector2(THRUST * MathUtils.cos(angle), THRUST * MathUtils.sin(angle));
-        Vector2 inverseDir = Utils.invert(thrustVector).setLength(3f);
-        Vector2 bulletVector = thrustVector.cpy().setLength(5f);
-
         if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            body.applyForceToCenter(thrustVector, true);
-            particleOutputTimer++;
-            if(particleOutputTimer > 1f / PARTICLE_RATE) {
-                gameScreen.getEntitiesToAdd().add(new PlayerTrail( x + inverseDir.x,  y + inverseDir.y, this));
-                particleOutputTimer = 0;
-            }
+            forward(thrustVector);
             thrusting = true;
         } else
             thrusting = false;
@@ -102,29 +97,15 @@ public class Player extends Entity {
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
             body.applyTorque(-TURNING_TORQUE,true);
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            fireRateTimer++;
-            if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
-                gameScreen.getEntitiesToAdd().add(new Bullet(x + bulletVector.x, y + bulletVector.y, this));
-                fireRateTimer = 0;
-                SHOOT_SFX.play(Main.SETTINGS.getVolume());
-            }
+            shoot(angle);
         }
-
-        if(x > Main.INSTANCE.WORLD_WIDTH) {
-            body.setTransform(0f, body.getPosition().y,body.getAngle());
-        } else if(x < 0) {
-            body.setTransform(Main.INSTANCE.WORLD_WIDTH, body.getPosition().y,body.getAngle());
-        }
-
-        if(y > Main.INSTANCE.WORLD_HEIGHT) {
-            body.setTransform(body.getPosition().x, 0f, body.getAngle());
-        } else if(y < 0) {
-            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT, body.getAngle());
-        }
+        checkAreaBounds();
     }
 
     @Override
     public void render(ShapeRenderer sr) {
+        if(gameScreen.isGameOver())
+            return;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float rot = body.getAngle() * MathUtils.radiansToDegrees;
@@ -154,11 +135,6 @@ public class Player extends Entity {
     @Override
     public void render(SpriteBatch sb) {}
 
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
-
     public void hit() {
         HIT_SFX.play(Main.SETTINGS.getVolume());
         blinking = true;
@@ -169,6 +145,49 @@ public class Player extends Entity {
             gameScreen.endGame(false);
         }
 
+    }
+
+    protected void forward(Vector2 thrustVector) {
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
+        Vector2 inverseDir = Utils.invert(thrustVector).setLength(3f);
+        body.applyForceToCenter(thrustVector, true);
+        particleOutputTimer++;
+        if(particleOutputTimer > 1f / PARTICLE_RATE) {
+            gameScreen.getEntitiesToAdd().add(new PlayerTrail( x + inverseDir.x,  y + inverseDir.y, this));
+            particleOutputTimer = 0;
+        }
+    }
+
+    protected void shoot(float angle) {
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
+        Vector2 bulletVector = new Vector2(5f * MathUtils.cos(angle), 5f * MathUtils.sin(angle));
+        fireRateTimer++;
+        if(Bullet.bulletCount < 0)
+            Bullet.bulletCount = 0;
+        if(fireRateTimer > 1f / FIRE_RATE && Bullet.bulletCount < 3) {
+            gameScreen.getEntitiesToAdd().add(new Bullet(x + bulletVector.x, y + bulletVector.y, this));
+            Bullet.bulletCount++;
+            fireRateTimer = 0;
+            SHOOT_SFX.play(Main.SETTINGS.getVolume());
+        }
+    }
+
+    protected void checkAreaBounds() {
+        float x = body.getPosition().x;
+        float y = body.getPosition().y;
+        if(x > Main.INSTANCE.WORLD_WIDTH) {
+            body.setTransform(0f, body.getPosition().y,body.getAngle());
+        } else if(x < 0) {
+            body.setTransform(Main.INSTANCE.WORLD_WIDTH, body.getPosition().y,body.getAngle());
+        }
+
+        if(y > Main.INSTANCE.WORLD_HEIGHT) {
+            body.setTransform(body.getPosition().x, 0f, body.getAngle());
+        } else if(y < 0) {
+            body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT, body.getAngle());
+        }
     }
 
     private float[] calculateVertices() {

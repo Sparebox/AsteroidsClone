@@ -31,6 +31,8 @@ public class PreferencesScreen extends ScreenAdapter {
     private Label volumeLevel;
     private Slider volumeSlider;
     private TextButton backButton;
+    private TextButton resetHighScores;
+    private CheckBox botBox;
 
     public PreferencesScreen() {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
@@ -53,6 +55,13 @@ public class PreferencesScreen extends ScreenAdapter {
                 Main.INSTANCE.setScreen(new MenuScreen());
             }
         });
+        resetHighScores = new TextButton("Reset highscores", skin);
+        resetHighScores.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.SETTINGS.setTopScore(0);
+            }
+        });
         volumeSlider = new Slider(0.0f, 1.0f, 0.1f, false, skin);
         volumeSlider.setValue(Main.SETTINGS.getVolume());
         volumeSlider.addListener(new ChangeListener() {
@@ -61,19 +70,31 @@ public class PreferencesScreen extends ScreenAdapter {
                 volumeLevel.setText(Float.toString(MathUtils.floor(volumeSlider.getValue()*10)/10f));
             }
         });
+        botBox = new CheckBox("Bot enabled", skin);
+        botBox.setChecked(Main.SETTINGS.isBotEnabled());
+        botBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Main.SETTINGS.setBotEnabled(botBox.isChecked());
+            }
+        });
         table.add(titleLabel).colspan(3).pad(0,0,100,0);
         table.row();
         table.add(volumeLabel).pad(0,0,0,10).left();
         table.add(volumeLevel).pad(0,0,0,10).center().width(20);
         table.add(volumeSlider).right();
         table.row();
-        table.add(backButton).width(MenuScreen.BUTTON_WIDTH).colspan(3).pad(20,0,0,0);
+        table.add(botBox).left();
+        table.row().pad(10,0,10,0);
+        table.add(resetHighScores).width(150).left();
+        table.row().pad(10,0,10,0);
+        table.add(backButton).width(MenuScreen.BUTTON_WIDTH).colspan(3);
     }
 
     @Override
     public void render(float deltaTime) {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
-            Gdx.app.exit();
+            Main.INSTANCE.setScreen(new MenuScreen());
         Gdx.gl30.glClearColor(0,0,0,1);
         Gdx.gl30.glClear(GL30.GL_COLOR_BUFFER_BIT);
         stage.act(deltaTime);

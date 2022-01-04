@@ -21,7 +21,8 @@ public class Asteroid extends Entity {
     private static final int INIT_VEL = 20; // Meters per second
     private static final Sound BREAK_SFX = Main.INSTANCE.assetManager.get(Assets.BREAK);
 
-    private Polygon shape;
+    protected Polygon shape;
+
     private AsteroidType type;
 
     public Asteroid(float x, float y, AsteroidType type) {
@@ -56,6 +57,8 @@ public class Asteroid extends Entity {
 
     @Override
     public void update(float deltaTime) {
+        if(gameScreen.isGameOver())
+            return;
         int transitionBuffer = 0;  // The distance to appear and disappear from borders
         switch(type) {
             case SMALL:
@@ -82,6 +85,8 @@ public class Asteroid extends Entity {
 
     @Override
     public void render(ShapeRenderer sr) {
+        if(gameScreen.isGameOver())
+            return;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float rot = body.getAngle() * MathUtils.radiansToDegrees;
@@ -149,6 +154,10 @@ public class Asteroid extends Entity {
         dispose();
     }
 
+    public float getSize() {
+        return Math.max(shape.getScaleX(), shape.getScaleY());
+    }
+
     private float[] calculateVertices(long seed) {
         float[] vertices = new float[VERTICES * 2];
         float angleDiff = (2 * MathUtils.PI) / VERTICES;
@@ -177,4 +186,5 @@ public class Asteroid extends Entity {
         }
         return vertices;
     }
+
 }

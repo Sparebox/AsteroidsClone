@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -36,7 +37,6 @@ public class GameScreen extends ScreenAdapter {
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
-    private Set<ScoreIndicator> scoreIndicators;
     private Player player;
     private Camera gameCamera;
     private Camera UIcamera;
@@ -47,6 +47,7 @@ public class GameScreen extends ScreenAdapter {
     private BitmapFont font;
     private AsteroidFactory asteroidFactory;
     private Box2DDebugRenderer debugRenderer;
+    private float secondsSinceStart;
     private boolean gameOver = false;
     private boolean gameVictory = false;
 
@@ -70,8 +71,10 @@ public class GameScreen extends ScreenAdapter {
         entities = new HashSet<>();
         entitiesToDelete = new HashSet<>();
         entitiesToAdd = new HashSet<>();
-        scoreIndicators = new HashSet<>();
-        player = new Player(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
+        if(Main.SETTINGS.isBotEnabled())
+            player = new Bot(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
+        else
+            player = new Player(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
         entitiesToAdd.add(player);
         Gdx.input.setCursorCatched(true);
         MenuScreen.THEME.stop();
@@ -82,13 +85,67 @@ public class GameScreen extends ScreenAdapter {
             Main.INSTANCE.setScreen(new MenuScreen());
             return;
         }
+        world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
+        updateEntities(deltaTime);
+        asteroidFactory.update();
+    }
+
+    @Override
+    public void render(float deltaTime) {
         if(gameOver) {
-            if(player.getScore() > Main.SETTINGS.getTopScore())
+            if(player.getScore() > Main.SETTINGS.getTopScore() && !(player instanceof Bot))
                 Main.SETTINGS.setTopScore(player.getScore());
-            Main.INSTANCE.setScreen(new GameOverScreen(player.getScore(), asteroidFactory.getCurrentLevel(), gameVictory));
+            Main.INSTANCE.setScreen(new GameOverScreen(player, asteroidFactory.getCurrentLevel(), gameVictory, secondsSinceStart));
             return;
         }
-        world.step(1f / FPS, VEL_ITERATIONS, POS_ITERATIONS);
+        update(deltaTime);
+        Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
+        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        for(Entity e : entities) {
+            e.render(sr);
+        }
+        sr.end();
+        sb.begin();
+        for(Entity e : entities) {
+            e.render(sb);
+        }
+        drawHUD();
+        sb.end();
+//        debugRenderer.setDrawVelocities(true);
+//        debugRenderer.render(world, gameCamera.combined);
+        secondsSinceStart += deltaTime;
+    }
+
+    @Override
+    public void hide() {
+        dispose();
+    }
+
+    @Override
+    public void dispose() {
+        for(Entity e : entities) {
+            e.dispose();
+        }
+        for(Entity e : entitiesToDelete) {
+            if(e.getBody() == null)
+                continue;
+            world.destroyBody(e.getBody());
+            entities.remove(e);
+        }
+        entities.clear();
+        entitiesToDelete.clear();
+        font.dispose();
+        debugRenderer.dispose();
+        world.dispose();
+    }
+
+    public void endGame(boolean victory) {
+        gameVictory = victory;
+        gameOver = true;
+    }
+
+    private void updateEntities(float deltaTime) {
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
                 if(e.getBody() != null) {
@@ -118,56 +175,22 @@ public class GameScreen extends ScreenAdapter {
         for(Entity e : entities) {
             e.update(deltaTime);
         }
-        asteroidFactory.update();
     }
 
-    @Override
-    public void render(float deltaTime) {
-        update(deltaTime);
-        Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
-        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
-        sr.begin(ShapeRenderer.ShapeType.Line);
-        for(Entity e : entities) {
-            e.render(sr);
-        }
-        sr.end();
-        sb.begin();
-        for(Entity e : entities) {
-            e.render(sb);
-        }
+    private void drawHUD() {
         font.draw(sb, "Score: "+player.getScore(), 10, Gdx.graphics.getHeight() - 5);
         font.draw(sb, "Lives: "+player.getLives(), 10, Gdx.graphics.getHeight() - 5 - font.getLineHeight());
         font.draw(sb, asteroidFactory.getCurrentLevel().toString(), 10,Gdx.graphics.getHeight() - 5 - 2 * font.getLineHeight());
-        sb.end();
-        //debugRenderer.render(world, gameCamera.combined);
     }
 
-    @Override
-    public void hide() {
-        dispose();
+    // Getters and setters
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
-    @Override
-    public void dispose() {
-        for(Entity e : entities) {
-            e.dispose();
-        }
-        for(Entity e : entitiesToDelete) {
-            if(e.getBody() == null)
-                continue;
-            world.destroyBody(e.getBody());
-            entities.remove(e);
-        }
-        entities.clear();
-        entitiesToDelete.clear();
-        world.dispose();
-        font.dispose();
-        debugRenderer.dispose();
-    }
-
-    public void endGame(boolean victory) {
-        gameVictory = victory;
-        gameOver = true;
+    public float getSecondsSinceStart() {
+        return secondsSinceStart;
     }
 
     public Set<Entity> getEntities() {
@@ -182,7 +205,7 @@ public class GameScreen extends ScreenAdapter {
         return entitiesToAdd;
     }
 
-    public Player getPlayer() {
+    public Player getPlayer() { // TODO: Add proper bot implementation
         return player;
     }
 

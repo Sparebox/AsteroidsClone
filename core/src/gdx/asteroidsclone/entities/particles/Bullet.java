@@ -14,12 +14,12 @@ import gdx.asteroidsclone.utils.Utils;
 
 public class Bullet extends Particle {
 
+    public static final int INIT_VEL = 200; // Meters per second
     public static int bulletCount = 0;
 
     public Bullet(float x, float y, Entity player) {
         this.radius = 0.5f;
-        this.initVel = 200;
-        bulletCount++;
+        this.initVel = INIT_VEL;
         this.bd = new BodyDef();
         this.bd.type = BodyDef.BodyType.DynamicBody;
         this.bd.position.set(x, y);

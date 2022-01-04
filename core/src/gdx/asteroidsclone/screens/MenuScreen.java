@@ -1,5 +1,6 @@
 package gdx.asteroidsclone.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -7,6 +8,10 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -17,6 +22,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
+import gdx.asteroidsclone.entities.AsteroidType;
+import gdx.asteroidsclone.entities.Entity;
+import gdx.asteroidsclone.entities.MenuAsteroid;
+
+import java.util.HashSet;
 
 
 public class MenuScreen extends ScreenAdapter {
@@ -24,6 +34,8 @@ public class MenuScreen extends ScreenAdapter {
     public static final int BUTTON_WIDTH = 100;
     public static final int FONT_SIZE = 50;
     public static final Music THEME = Main.INSTANCE.assetManager.get(Assets.THEME);
+
+    private static final int BG_ASTEROIDS_NUM = 20;
 
     private Stage stage;
     private Table table;
@@ -37,6 +49,8 @@ public class MenuScreen extends ScreenAdapter {
     private TextButton optionsButton;
     private TextButton controlsButton;
     private TextButton exitButton;
+    private ShapeRenderer sr = Main.INSTANCE.sr;
+    private HashSet<MenuAsteroid> backgroundEntities;
 
     public MenuScreen() {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
@@ -96,6 +110,7 @@ public class MenuScreen extends ScreenAdapter {
         THEME.setVolume(Main.SETTINGS.getVolume());
         THEME.setLooping(true);
         Gdx.input.setCursorCatched(false);
+        createBackgroundEntities();
     }
 
     @Override
@@ -106,17 +121,53 @@ public class MenuScreen extends ScreenAdapter {
             Main.INSTANCE.setScreen(new GameScreen());
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        renderBackground(sr, deltaTime);
+        sr.end();
         stage.act(deltaTime);
         stage.draw();
+    }
+
+    private void renderBackground(ShapeRenderer sr, float deltaTime) {
+        GameScreen.world.step(1f/GameScreen.FPS, GameScreen.VEL_ITERATIONS, GameScreen.POS_ITERATIONS);
+        for(Entity e : backgroundEntities) {
+            e.update(deltaTime);
+            e.render(sr);
+        }
+    }
+
+    private void createBackgroundEntities() {
+        sr.setProjectionMatrix(stage.getCamera().combined);
+        GameScreen.world = new World(Vector2.Zero, false);
+        backgroundEntities = new HashSet<>();
+        for(int i = 0; i < BG_ASTEROIDS_NUM; i++) {
+            int x = MathUtils.random(0, (int)Main.INSTANCE.GUI_WIDTH);
+            int y = MathUtils.random((int)Main.INSTANCE.GUI_HEIGHT + 50, (int)Main.INSTANCE.GUI_HEIGHT + 500);
+            Vector2 vel = new Vector2(0, -MathUtils.random(20,70));
+            AsteroidType type = MathUtils.randomBoolean() ? AsteroidType.MEDIUM : AsteroidType.LARGE;
+            MenuAsteroid asteroid = new MenuAsteroid(x, y, type);
+            asteroid.getBd().angularVelocity =
+                    MathUtils.randomBoolean() ? MathUtils.random(0f,1f) : -MathUtils.random(0f,1f);
+            asteroid.getBd().linearVelocity.set(vel);
+            asteroid.setBody(GameScreen.world.createBody(asteroid.getBd()));
+            backgroundEntities.add(asteroid);
+        }
     }
 
     @Override
     public void hide() {
         dispose();
     }
+
     @Override
     public void dispose() {
         stage.dispose();
+        font.dispose();
+        for(var asteroid : backgroundEntities) {
+            GameScreen.world.destroyBody(asteroid.getBody());
+        }
+        backgroundEntities.clear();
+        GameScreen.world.dispose();
     }
 
 }

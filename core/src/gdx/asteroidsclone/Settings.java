@@ -8,6 +8,7 @@ public class Settings {
     private static final String PREFS_NAME = "AsteroidsClonePrefs";
     private static final String VOLUME = "volume";
     private static final String TOP_SCORE = "topScore";
+    private static final String BOT_ENABLED = "botEnabled";
 
     private Preferences getPrefs() {
         return Gdx.app.getPreferences(PREFS_NAME);
@@ -29,5 +30,14 @@ public class Settings {
 
     public int getTopScore() {
         return getPrefs().getInteger(TOP_SCORE, 0);
+    }
+
+    public void setBotEnabled(boolean enabled) {
+        getPrefs().putBoolean(BOT_ENABLED, enabled);
+        getPrefs().flush();
+    }
+
+    public boolean isBotEnabled() {
+        return getPrefs().getBoolean(BOT_ENABLED, false);
     }
 }
