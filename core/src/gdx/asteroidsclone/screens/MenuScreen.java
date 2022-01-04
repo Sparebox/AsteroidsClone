@@ -51,6 +51,7 @@ public class MenuScreen extends ScreenAdapter {
     private TextButton exitButton;
     private ShapeRenderer sr = Main.INSTANCE.sr;
     private HashSet<MenuAsteroid> backgroundEntities;
+    private World world;
 
     public MenuScreen() {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
@@ -129,7 +130,7 @@ public class MenuScreen extends ScreenAdapter {
     }
 
     private void renderBackground(ShapeRenderer sr, float deltaTime) {
-        GameScreen.world.step(1f/GameScreen.FPS, GameScreen.VEL_ITERATIONS, GameScreen.POS_ITERATIONS);
+        world.step(1f/GameScreen.FPS, GameScreen.VEL_ITERATIONS, GameScreen.POS_ITERATIONS);
         for(Entity e : backgroundEntities) {
             e.update(deltaTime);
             e.render(sr);
@@ -138,7 +139,7 @@ public class MenuScreen extends ScreenAdapter {
 
     private void createBackgroundEntities() {
         sr.setProjectionMatrix(stage.getCamera().combined);
-        GameScreen.world = new World(Vector2.Zero, false);
+        world = new World(Vector2.Zero, false);
         backgroundEntities = new HashSet<>();
         for(int i = 0; i < BG_ASTEROIDS_NUM; i++) {
             int x = MathUtils.random(0, (int)Main.INSTANCE.GUI_WIDTH);
@@ -149,7 +150,7 @@ public class MenuScreen extends ScreenAdapter {
             asteroid.getBd().angularVelocity =
                     MathUtils.randomBoolean() ? MathUtils.random(0f,1f) : -MathUtils.random(0f,1f);
             asteroid.getBd().linearVelocity.set(vel);
-            asteroid.setBody(GameScreen.world.createBody(asteroid.getBd()));
+            asteroid.setBody(world.createBody(asteroid.getBd()));
             backgroundEntities.add(asteroid);
         }
     }
@@ -164,10 +165,10 @@ public class MenuScreen extends ScreenAdapter {
         stage.dispose();
         font.dispose();
         for(var asteroid : backgroundEntities) {
-            GameScreen.world.destroyBody(asteroid.getBody());
+            world.destroyBody(asteroid.getBody());
         }
         backgroundEntities.clear();
-        GameScreen.world.dispose();
+        world.dispose();
     }
 
 }

@@ -11,13 +11,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.asteroidsclone.Main;
 import gdx.asteroidsclone.entities.*;
-import gdx.asteroidsclone.entities.particles.Bullet;
 import gdx.asteroidsclone.physics.CustomContactListener;
 
 import java.util.HashSet;
@@ -131,7 +129,6 @@ public class GameScreen extends ScreenAdapter {
             if(e.getBody() == null)
                 continue;
             world.destroyBody(e.getBody());
-            entities.remove(e);
         }
         entities.clear();
         entitiesToDelete.clear();
