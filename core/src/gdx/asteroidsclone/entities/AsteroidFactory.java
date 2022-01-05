@@ -55,6 +55,7 @@ public class AsteroidFactory {
             x = MathUtils.randomBoolean() ? -5 : Main.INSTANCE.WORLD_WIDTH + 5;
         gameScreen.getEntitiesToAdd().add(new Asteroid(x, y, currentLevel.TYPE));
         levelSpawned++;
+        asteroidCount++;
         }
 
     public Level getCurrentLevel() {

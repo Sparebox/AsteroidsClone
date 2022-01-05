@@ -32,12 +32,12 @@ public class Bot extends Player {
             if(body.getPosition().dst(closestBody.getPosition()) < 30f) {
                 Vector2 botDir = new Vector2(MathUtils.cos(angle), MathUtils.sin(angle));
                 Vector2 bodyDir = closestBody.getLinearVelocity().cpy().nor();
-                if(bodyDir.isCollinearOpposite(botDir, 3f))
+                if(bodyDir.isCollinearOpposite(botDir, 1f))
                     dodge(closestBody, angle);
             } else
                 shoot(closestBody, angle, deltaTime);
         }
-        checkAreaBounds();
+        checkAreaBounds(body.getPosition().x, body.getPosition().y);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Bot extends Player {
 
     private void shoot(Body target, float angle, float deltaTime) {
         Vector2[] results = aimAt(target, angle, deltaTime);
-        if(!results[0].isOnLine(results[1], 0.01f))
+        if(!results[0].isOnLine(results[1], 0.005f))
             return;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
@@ -87,26 +87,26 @@ public class Bot extends Player {
         float turnAngle = target.getLinearVelocity().cpy().nor().angleDeg() + MathUtils.PI / 2;
         Vector2 turnDirection = new Vector2(MathUtils.cos(turnAngle), MathUtils.sin(turnAngle));
         Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
-        if(!botDir.isOnLine(turnDirection, 0.1f))
+        if(!botDir.isOnLine(turnDirection, 0.01f))
             body.applyTorque(Player.TURNING_TORQUE, true);
         else
             forward(botDir.scl(Player.THRUST));
     }
 
     private Vector2[] aimAt(Body target, float botAngle, float deltaTime) {
-        float targetSize = ((Asteroid) target.getUserData()).getSize() / 3f;
-        Vector2 direction = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
-        float dist = body.getPosition().cpy().add(direction.cpy().scl(5f)).dst(target.getPosition()); // Add random constant to correct aiming?
-        float timeToImpact = (dist / Bullet.INIT_VEL) + deltaTime;
-        Vector2 leadingVector = target.getPosition().cpy().add(target.getLinearVelocity().cpy().scl(timeToImpact + targetSize));
-        Vector2 targetVector = leadingVector.cpy().sub(body.getPosition().cpy()).nor();
-        float angleToTarget = targetVector.angleRad(direction);
+        Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
+        float dist = body.getPosition().cpy().add(botDir.cpy().scl(5f)).dst(target.getPosition());
+        float timeToImpact = (dist * 1.5f / Bullet.INIT_VEL);
+        Vector2 targetVel = target.getLinearVelocity().cpy();
+        Vector2 leadingVector = target.getPosition().cpy().add(targetVel.cpy().scl(timeToImpact + deltaTime));
+        Vector2 targetVector = leadingVector.cpy().sub(body.getPosition()).nor();
+        float angleToTarget = targetVector.angleRad(botDir);
         if(angleToTarget < 0)
             body.applyTorque(-TURNING_TORQUE, true);
         else
             body.applyTorque(TURNING_TORQUE, true);
         visualVector = leadingVector;
-        return new Vector2[] {direction, targetVector};
+        return new Vector2[] {botDir, targetVector};
     }
 
 }

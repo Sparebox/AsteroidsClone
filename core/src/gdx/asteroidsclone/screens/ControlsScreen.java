@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
@@ -25,6 +23,7 @@ public class ControlsScreen extends ScreenAdapter {
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = Main.INSTANCE.fontParameter;
     private Label titleLabel;
     private TextButton backButton;
+    private TextArea textArea;
 
     public ControlsScreen() {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
@@ -43,7 +42,12 @@ public class ControlsScreen extends ScreenAdapter {
         fontParameter.size = MenuScreen.FONT_SIZE;
         style.font = fontGenerator.generateFont(fontParameter);
         titleLabel = new Label("Controls", style);
+        textArea = new TextArea("Forward: up arrow\n\nLeft: left arrow\n\nRight: right arrow\n\nSpace: fire",skin);
+        textArea.setSize(200,200);
+        textArea.setAlignment(Align.center);
         table.add(titleLabel);
+        table.row().pad(10,0,10,0);
+        table.add(textArea).size(textArea.getWidth(),textArea.getHeight());
         table.row().pad(10,0,10,0);
         table.add(backButton).width(MenuScreen.BUTTON_WIDTH);
     }

@@ -48,7 +48,6 @@ public class Asteroid extends Entity {
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices(seed));
-        AsteroidFactory.asteroidCount++;
     }
 
     public Asteroid(Vector2 pos, AsteroidType type) {
@@ -132,6 +131,7 @@ public class Asteroid extends Entity {
                     asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.2f));
                     asteroid.getBd().angularVelocity = body.getAngularVelocity();
                     gameScreen.getEntitiesToAdd().add(asteroid);
+                    AsteroidFactory.asteroidCount++;
                 }
                 break;
             case LARGE:
@@ -147,6 +147,7 @@ public class Asteroid extends Entity {
                     asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.1f));
                     asteroid.getBd().angularVelocity = body.getAngularVelocity();
                     gameScreen.getEntitiesToAdd().add(asteroid);
+                    AsteroidFactory.asteroidCount++;
                 }
                 break;
         }

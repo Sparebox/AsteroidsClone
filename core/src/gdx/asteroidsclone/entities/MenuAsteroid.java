@@ -30,4 +30,9 @@ public class MenuAsteroid extends Asteroid {
         sr.identity();
     }
 
+    @Override
+    public void dispose() {
+
+    }
+
 }

@@ -60,6 +60,7 @@ public class PreferencesScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Main.SETTINGS.setTopScore(0);
+                resetHighScores.setDisabled(true);
             }
         });
         volumeSlider = new Slider(0.0f, 1.0f, 0.1f, false, skin);

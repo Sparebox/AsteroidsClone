@@ -37,6 +37,9 @@ public class MenuScreen extends ScreenAdapter {
 
     private static final int BG_ASTEROIDS_NUM = 20;
 
+    private static World world;
+    private static HashSet<MenuAsteroid> backgroundEntities;
+
     private Stage stage;
     private Table table;
     private BitmapFont font;
@@ -50,8 +53,7 @@ public class MenuScreen extends ScreenAdapter {
     private TextButton controlsButton;
     private TextButton exitButton;
     private ShapeRenderer sr = Main.INSTANCE.sr;
-    private HashSet<MenuAsteroid> backgroundEntities;
-    private World world;
+    private boolean closingApp;
 
     public MenuScreen() {
         stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
@@ -73,6 +75,7 @@ public class MenuScreen extends ScreenAdapter {
         startButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                disposeWorld();
                 Main.INSTANCE.setScreen(new GameScreen());
             }
         });
@@ -94,6 +97,8 @@ public class MenuScreen extends ScreenAdapter {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                closingApp = true;
+                disposeWorld();
                 Gdx.app.exit();
             }
         });
@@ -116,10 +121,18 @@ public class MenuScreen extends ScreenAdapter {
 
     @Override
     public void render(float deltaTime) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        if(closingApp)
+            return;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            disposeWorld();
             Gdx.app.exit();
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER))
+            return;
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            disposeWorld();
             Main.INSTANCE.setScreen(new GameScreen());
+            return;
+        }
         Gdx.gl.glClearColor(0,0,0,1); // Clears screen with black
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         sr.begin(ShapeRenderer.ShapeType.Line);
@@ -139,11 +152,13 @@ public class MenuScreen extends ScreenAdapter {
 
     private void createBackgroundEntities() {
         sr.setProjectionMatrix(stage.getCamera().combined);
+        if(world != null)
+            return;
         world = new World(Vector2.Zero, false);
         backgroundEntities = new HashSet<>();
         for(int i = 0; i < BG_ASTEROIDS_NUM; i++) {
             int x = MathUtils.random(0, (int)Main.INSTANCE.GUI_WIDTH);
-            int y = MathUtils.random((int)Main.INSTANCE.GUI_HEIGHT + 50, (int)Main.INSTANCE.GUI_HEIGHT + 500);
+            int y = MathUtils.random(0, (int)Main.INSTANCE.GUI_HEIGHT + 500);
             Vector2 vel = new Vector2(0, -MathUtils.random(20,70));
             AsteroidType type = MathUtils.randomBoolean() ? AsteroidType.MEDIUM : AsteroidType.LARGE;
             MenuAsteroid asteroid = new MenuAsteroid(x, y, type);
@@ -155,6 +170,15 @@ public class MenuScreen extends ScreenAdapter {
         }
     }
 
+    private void disposeWorld() {
+        for(var asteroid : backgroundEntities) {
+            world.destroyBody(asteroid.getBody());
+        }
+        backgroundEntities.clear();
+        world.dispose();
+        world = null;
+    }
+
     @Override
     public void hide() {
         dispose();
@@ -164,11 +188,6 @@ public class MenuScreen extends ScreenAdapter {
     public void dispose() {
         stage.dispose();
         font.dispose();
-        for(var asteroid : backgroundEntities) {
-            world.destroyBody(asteroid.getBody());
-        }
-        backgroundEntities.clear();
-        world.dispose();
     }
 
 }

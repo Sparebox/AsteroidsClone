@@ -12,9 +12,9 @@ public class DesktopLauncher {
 		var config = new LwjglApplicationConfiguration();
 		config.title = "Asteroids Clone";
 		var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		config.width = screenSize.width;
-		config.height = screenSize.height;
-		config.fullscreen = true;
+		config.width = screenSize.width/2;
+		config.height = screenSize.height/2;
+		config.fullscreen = false;
 		config.foregroundFPS = 60;
 		config.resizable = false;
 		config.useGL30 = true;

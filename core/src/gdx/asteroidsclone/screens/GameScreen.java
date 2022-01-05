@@ -91,8 +91,6 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float deltaTime) {
         if(gameOver) {
-            if(player.getScore() > Main.SETTINGS.getTopScore() && !(player instanceof Bot))
-                Main.SETTINGS.setTopScore(player.getScore());
             Main.INSTANCE.setScreen(new GameOverScreen(player, asteroidFactory.getCurrentLevel(), gameVictory, secondsSinceStart));
             return;
         }

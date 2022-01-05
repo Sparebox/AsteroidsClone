@@ -32,12 +32,19 @@ public class GameOverScreen extends ScreenAdapter {
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
+        int timeBonus = MathUtils.round(1000f / timeSinceStart);
+        player.setScore(player.getScore() + timeBonus);
+        if(player.getScore() > Main.SETTINGS.getTopScore() && !(player instanceof Bot))
+            Main.SETTINGS.setTopScore(player.getScore());
         var titleLabel = new Label("", skin);
         if(victory)
             titleLabel.setText("Game won");
         else
             titleLabel.setText("Game lost");
-        var scoreLabel = new Label("Score:", skin);
+        var scoreLabel = new Label("Total score:", skin);
+        var scoreVal = new Label(Integer.toString(player.getScore()), skin);
+        var bonusScoreLabel = new Label("Time bonus:", skin);
+        var bonusScoreVal = new Label(Integer.toString(timeBonus), skin);
         var topScoreLabel = new Label("Player top score:", skin);
         var levelLabel = new Label(currentLevel.toString(), skin);
         backButton = new TextButton("Main Menu", skin);
@@ -47,15 +54,14 @@ public class GameOverScreen extends ScreenAdapter {
                 Main.INSTANCE.setScreen(new MenuScreen());
             }
         });
-        var scoreVal = new Label(Integer.toString(player.getScore()), skin);
         var topScoreVal = new Label(Integer.toString(Main.SETTINGS.getTopScore()), skin);
         var playerOrBot = new Label("", skin);
         if(player instanceof Bot)
             playerOrBot.setText("Bot");
         else
             playerOrBot.setText("Player");
-        int seconds = MathUtils.floor(timeSinceStart % 60);
-        int minutes = MathUtils.floor(seconds / 60f);
+        int seconds = MathUtils.floor(timeSinceStart) % 60;
+        int minutes = MathUtils.floor(timeSinceStart / 60f);
         var timeLabel = new Label("Time:", skin);
         var time = new Label(minutes+":"+seconds, skin);
         table.add(titleLabel).colspan(2);
@@ -66,6 +72,9 @@ public class GameOverScreen extends ScreenAdapter {
         table.row().pad(10,0,10,0);
         table.add(scoreLabel).left();
         table.add(scoreVal).pad(0,20,0,0);
+        table.row().pad(10,0,10,0);
+        table.add(bonusScoreLabel).left();
+        table.add(bonusScoreVal).pad(0,20,0,0);
         table.row().pad(10,0,10,0);
         table.add(topScoreLabel).left();
         table.add(topScoreVal).pad(0,20,0,0);

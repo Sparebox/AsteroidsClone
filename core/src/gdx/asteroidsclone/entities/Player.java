@@ -99,7 +99,7 @@ public class Player extends Entity {
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             shoot(angle);
         }
-        checkAreaBounds();
+        checkAreaBounds(x, y);
     }
 
     @Override
@@ -174,9 +174,7 @@ public class Player extends Entity {
         }
     }
 
-    protected void checkAreaBounds() {
-        float x = body.getPosition().x;
-        float y = body.getPosition().y;
+    protected void checkAreaBounds(float x, float y) {
         if(x > Main.INSTANCE.WORLD_WIDTH) {
             body.setTransform(0f, body.getPosition().y,body.getAngle());
         } else if(x < 0) {
