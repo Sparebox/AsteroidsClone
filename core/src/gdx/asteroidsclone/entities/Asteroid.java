@@ -17,8 +17,9 @@ import gdx.asteroidsclone.physics.ContactType;
 public class Asteroid extends Entity {
 
     private static final int PARTICLES = 10; // Particle count when hit
-    private static final int VERTICES = 8;
+    private static final int VERTICES = 8; // 8 is max hitbox vertex count
     private static final int INIT_VEL = 20; // Meters per second
+    private static final int VEL_LIMIT = 70; // Meters per second
     private static final Sound BREAK_SFX = Main.INSTANCE.assetManager.get(Assets.BREAK);
 
     protected Polygon shape;
@@ -80,6 +81,8 @@ public class Asteroid extends Entity {
         } else if(body.getPosition().y < -transitionBuffer) {
             body.setTransform(body.getPosition().x, Main.INSTANCE.WORLD_HEIGHT + transitionBuffer, body.getAngle());
         }
+        if(body.getLinearVelocity().len2() > VEL_LIMIT * VEL_LIMIT)
+            body.setLinearVelocity(body.getLinearVelocity().setLength(VEL_LIMIT));
     }
 
     @Override
@@ -128,7 +131,7 @@ public class Asteroid extends Entity {
                     newAngle =  bulletDir.angleRad() + sign * MathUtils.PI / 2;
                     asteroid.getBd().position.set(body.getPosition().cpy().add(
                             new Vector2(separation * MathUtils.cos(newAngle), separation * MathUtils.sin(newAngle))));
-                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.2f));
+                    asteroid.getBd().linearVelocity.set(body.getLinearVelocity().cpy().setAngleRad(newAngle).scl(1.4f));
                     asteroid.getBd().angularVelocity = body.getAngularVelocity();
                     gameScreen.getEntitiesToAdd().add(asteroid);
                     AsteroidFactory.asteroidCount++;

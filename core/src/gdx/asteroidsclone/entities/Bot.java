@@ -14,8 +14,6 @@ import java.util.HashSet;
 
 public class Bot extends Player {
 
-    public static final float VIEW_RADIUS = 150f; // In meters
-
     private Vector2 visualVector;
 
     public Bot(int x, int y) {
@@ -32,7 +30,8 @@ public class Bot extends Player {
             if(body.getPosition().dst(closestBody.getPosition()) < 30f) {
                 Vector2 botDir = new Vector2(MathUtils.cos(angle), MathUtils.sin(angle));
                 Vector2 bodyDir = closestBody.getLinearVelocity().cpy().nor();
-                if(bodyDir.isCollinearOpposite(botDir, 1f))
+                float angleBetween = botDir.angleDeg(bodyDir);
+                if(angleBetween < 30)
                     dodge(closestBody, angle);
             } else
                 shoot(closestBody, angle, deltaTime);
@@ -84,19 +83,22 @@ public class Bot extends Player {
     }
 
     private void dodge(Body target, float botAngle) {
+        Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
         float turnAngle = target.getLinearVelocity().cpy().nor().angleDeg() + MathUtils.PI / 2;
         Vector2 turnDirection = new Vector2(MathUtils.cos(turnAngle), MathUtils.sin(turnAngle));
-        Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
-        if(!botDir.isOnLine(turnDirection, 0.01f))
-            body.applyTorque(Player.TURNING_TORQUE, true);
-        else
+        float angleDiff = botDir.angleRad(turnDirection);
+        if(angleDiff < 0)
+            body.applyTorque(-TURNING_TORQUE, true);
+        else if(angleDiff > 0)
+            body.applyTorque(TURNING_TORQUE, true);
+        if(botDir.isOnLine(turnDirection, 1f))
             forward(botDir.scl(Player.THRUST));
     }
 
     private Vector2[] aimAt(Body target, float botAngle, float deltaTime) {
         Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
         float dist = body.getPosition().cpy().add(botDir.cpy().scl(5f)).dst(target.getPosition());
-        float timeToImpact = (dist * 1.5f / Bullet.INIT_VEL);
+        float timeToImpact = (dist * 1.7f) / Bullet.INIT_VEL;
         Vector2 targetVel = target.getLinearVelocity().cpy();
         Vector2 leadingVector = target.getPosition().cpy().add(targetVel.cpy().scl(timeToImpact + deltaTime));
         Vector2 targetVector = leadingVector.cpy().sub(body.getPosition()).nor();

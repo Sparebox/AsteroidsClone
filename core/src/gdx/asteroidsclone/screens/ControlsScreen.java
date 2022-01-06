@@ -26,7 +26,7 @@ public class ControlsScreen extends ScreenAdapter {
     private TextArea textArea;
 
     public ControlsScreen() {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.guiWidth, Main.INSTANCE.guiHeight));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);

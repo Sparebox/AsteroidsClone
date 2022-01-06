@@ -1,6 +1,7 @@
 package gdx.asteroidsclone.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL30;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
@@ -29,13 +29,16 @@ public class PreferencesScreen extends ScreenAdapter {
     private Label titleLabel;
     private Label volumeLabel;
     private Label volumeLevel;
+    private Label difficultyLabel;
     private Slider volumeSlider;
     private TextButton backButton;
     private TextButton resetHighScores;
+    private SelectBox<String> difficultyBox;
+    //private SelectBox<String> resolutionsBox;
     private CheckBox botBox;
 
     public PreferencesScreen() {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.guiWidth, Main.INSTANCE.guiHeight));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
@@ -48,43 +51,62 @@ public class PreferencesScreen extends ScreenAdapter {
         volumeLabel = new Label("Sound volume", skin);
         volumeLevel = new Label(Float.toString(Main.SETTINGS.getVolume()), skin);
         backButton = new TextButton("Back", skin);
-        backButton.addListener(new ClickListener() {
+        backButton.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void changed(ChangeEvent event, Actor actor) {
                 Main.SETTINGS.setVolume(volumeSlider.getValue());
                 Main.INSTANCE.setScreen(new MenuScreen());
             }
         });
         resetHighScores = new TextButton("Reset highscores", skin);
-        resetHighScores.addListener(new ClickListener() {
+        resetHighScores.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void changed(ChangeEvent event, Actor actor) {
                 Main.SETTINGS.setTopScore(0);
                 resetHighScores.setDisabled(true);
             }
         });
         volumeSlider = new Slider(0.0f, 1.0f, 0.1f, false, skin);
         volumeSlider.setValue(Main.SETTINGS.getVolume());
-        volumeSlider.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                volumeLevel.setText(Float.toString(MathUtils.floor(volumeSlider.getValue()*10)/10f));
-            }
+        volumeSlider.addListener((e) -> {
+            volumeLevel.setText(Float.toString(MathUtils.floor(volumeSlider.getValue()*10)/10f));
+            return false;
         });
         botBox = new CheckBox("Bot enabled", skin);
         botBox.setChecked(Main.SETTINGS.isBotEnabled());
-        botBox.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Main.SETTINGS.setBotEnabled(botBox.isChecked());
-            }
+        botBox.addListener((e) -> {
+            Main.SETTINGS.setBotEnabled(botBox.isChecked());
+            return false;
+        });
+//        resolutionsBox = new SelectBox<String>(skin);
+//        resolutionsBox.setItems("2560x1440", "1920x1080", "1280x720", "852x480");
+//        resolutionsBox.setSelected(Main.SETTINGS.getResolution());
+//        resolutionsBox.addListener((e) -> {
+//            String resolution = resolutionsBox.getSelected();
+//            int[] parsed = Main.SETTINGS.parseResolutionString(resolution);
+//            Main.SETTINGS.setResolution(resolution);
+//            Main.INSTANCE.aspectRatio = (float) parsed[0] / (float) parsed[1];
+//            Main.INSTANCE.WORLD_WIDTH = (int) (Main.INSTANCE.WORLD_HEIGHT * Main.INSTANCE.aspectRatio);
+//            return true;
+//        });
+        difficultyLabel = new Label("Difficulty:", skin);
+        difficultyBox = new SelectBox<String>(skin);
+        difficultyBox.setItems("Easy", "Normal", "Hard");
+        difficultyBox.setSelected(Main.SETTINGS.getDifficulty());
+        difficultyBox.addListener((e) -> {
+            Main.SETTINGS.setDifficulty(difficultyBox.getSelected());
+            return false;
         });
         table.add(titleLabel).colspan(3).pad(0,0,100,0);
         table.row();
         table.add(volumeLabel).pad(0,0,0,10).left();
         table.add(volumeLevel).pad(0,0,0,10).center().width(20);
         table.add(volumeSlider).right();
-        table.row();
+        table.row().pad(10,0,10,0);
+        table.add(difficultyLabel).left();
+        table.add(difficultyBox);
+//        table.add(resolutionsBox).left();
+        table.row().pad(10,0,10,0);;
         table.add(botBox).left();
         table.row().pad(10,0,10,0);
         table.add(resetHighScores).width(150).left();

@@ -8,8 +8,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import gdx.asteroidsclone.screens.MenuScreen;
 
@@ -18,12 +16,12 @@ public class Main extends Game {
 	public static Main INSTANCE;
 	public static Settings SETTINGS;
 
-	public final float ASPECT_RATIO;
-	public final int WORLD_WIDTH; // In meters
+	public int WORLD_WIDTH; // In meters
 	public final int WORLD_HEIGHT;
-	public final float GUI_WIDTH;
-	public final float GUI_HEIGHT;
 
+	public float aspectRatio;
+	public float guiWidth;
+	public float guiHeight;
 	public AssetManager assetManager;
 	public ShapeRenderer sr;
 	public SpriteBatch sb;
@@ -33,11 +31,11 @@ public class Main extends Game {
 	public Main(int width, int height) {
 		INSTANCE = this;
 		SETTINGS = new Settings();
-		ASPECT_RATIO = (float) width / (float) height;
+		aspectRatio = (float) width / (float) height;
 		WORLD_HEIGHT = 200;
-		WORLD_WIDTH = (int) (WORLD_HEIGHT * ASPECT_RATIO);
-		GUI_HEIGHT = height;
-		GUI_WIDTH = width;
+		WORLD_WIDTH = (int) (WORLD_HEIGHT * aspectRatio);
+		guiHeight = height;
+		guiWidth = width;
 	}
 
 	@Override

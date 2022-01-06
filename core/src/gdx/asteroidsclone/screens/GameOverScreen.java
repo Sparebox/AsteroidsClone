@@ -27,26 +27,29 @@ public class GameOverScreen extends ScreenAdapter {
     private TextButton backButton;
 
     public GameOverScreen(Player player, Level currentLevel, boolean victory, float timeSinceStart) {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.guiWidth, Main.INSTANCE.guiHeight));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-        int timeBonus = MathUtils.round(1000f / timeSinceStart);
-        player.setScore(player.getScore() + timeBonus);
-        if(player.getScore() > Main.SETTINGS.getTopScore() && !(player instanceof Bot))
-            Main.SETTINGS.setTopScore(player.getScore());
         var titleLabel = new Label("", skin);
-        if(victory)
+        int timeBonus = 0;
+        if(victory) {
             titleLabel.setText("Game won");
+            timeBonus = MathUtils.round(1000f / timeSinceStart);
+            player.setScore(player.getScore() + timeBonus);
+        }
         else
             titleLabel.setText("Game lost");
+        if(player.getScore() > Main.SETTINGS.getTopScore() && !(player instanceof Bot))
+            Main.SETTINGS.setTopScore(player.getScore());
         var scoreLabel = new Label("Total score:", skin);
         var scoreVal = new Label(Integer.toString(player.getScore()), skin);
         var bonusScoreLabel = new Label("Time bonus:", skin);
         var bonusScoreVal = new Label(Integer.toString(timeBonus), skin);
         var topScoreLabel = new Label("Player top score:", skin);
         var levelLabel = new Label(currentLevel.toString(), skin);
+        var difficultyLabel = new Label(Main.SETTINGS.getDifficulty(), skin);
         backButton = new TextButton("Main Menu", skin);
         backButton.addListener(new ClickListener() {
             @Override
@@ -63,10 +66,11 @@ public class GameOverScreen extends ScreenAdapter {
         int seconds = MathUtils.floor(timeSinceStart) % 60;
         int minutes = MathUtils.floor(timeSinceStart / 60f);
         var timeLabel = new Label("Time:", skin);
-        var time = new Label(minutes+":"+seconds, skin);
+        var time = new Label(padLeftZeros(Integer.toString(minutes), 2)+":"+padLeftZeros(Integer.toString(seconds), 2), skin);
         table.add(titleLabel).colspan(2);
         table.row().pad(20,0,0,0);
-        table.add(levelLabel).colspan(2);
+        table.add(levelLabel).left();
+        table.add(difficultyLabel);
         table.row().pad(10,0,10,0);
         table.add(playerOrBot).colspan(2);
         table.row().pad(10,0,10,0);
@@ -99,5 +103,18 @@ public class GameOverScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         stage.dispose();
+    }
+
+    private String padLeftZeros(String inputString, int length) {
+        if(inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder();
+        while(sb.length() < length - inputString.length()) {
+            sb.append('0');
+        }
+        sb.append(inputString);
+
+        return sb.toString();
     }
 }

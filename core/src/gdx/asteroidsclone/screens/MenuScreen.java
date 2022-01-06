@@ -1,6 +1,5 @@
 package gdx.asteroidsclone.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -56,7 +55,7 @@ public class MenuScreen extends ScreenAdapter {
     private boolean closingApp;
 
     public MenuScreen() {
-        stage = new Stage(new StretchViewport(Main.INSTANCE.GUI_WIDTH, Main.INSTANCE.GUI_HEIGHT));
+        stage = new Stage(new StretchViewport(Main.INSTANCE.guiWidth, Main.INSTANCE.guiHeight));
         Gdx.input.setInputProcessor(stage);
         table = new Table();
         table.setFillParent(true);
@@ -157,8 +156,8 @@ public class MenuScreen extends ScreenAdapter {
         world = new World(Vector2.Zero, false);
         backgroundEntities = new HashSet<>();
         for(int i = 0; i < BG_ASTEROIDS_NUM; i++) {
-            int x = MathUtils.random(0, (int)Main.INSTANCE.GUI_WIDTH);
-            int y = MathUtils.random(0, (int)Main.INSTANCE.GUI_HEIGHT + 500);
+            int x = MathUtils.random(0, (int)Main.INSTANCE.guiWidth);
+            int y = MathUtils.random(0, (int)Main.INSTANCE.guiHeight + 500);
             Vector2 vel = new Vector2(0, -MathUtils.random(20,70));
             AsteroidType type = MathUtils.randomBoolean() ? AsteroidType.MEDIUM : AsteroidType.LARGE;
             MenuAsteroid asteroid = new MenuAsteroid(x, y, type);

@@ -12,8 +12,8 @@ public class MenuAsteroid extends Asteroid {
 
     @Override
     public void update(float deltaTime) {
-        float newX = MathUtils.random(0, Main.INSTANCE.GUI_WIDTH);
-        float newY = MathUtils.random(Main.INSTANCE.GUI_HEIGHT + 50, Main.INSTANCE.GUI_HEIGHT + 500);
+        float newX = MathUtils.random(0, Main.INSTANCE.guiWidth);
+        float newY = MathUtils.random(Main.INSTANCE.guiHeight + 50, Main.INSTANCE.guiHeight + 500);
         if(body.getPosition().y < -40f) {
             body.setTransform(newX, newY, body.getAngle());
         }
