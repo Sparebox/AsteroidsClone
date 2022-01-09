@@ -16,7 +16,7 @@ public class Main extends Game {
 	public static Main INSTANCE;
 	public static Settings SETTINGS;
 
-	public int WORLD_WIDTH; // In meters
+	public final int WORLD_WIDTH; // In meters
 	public final int WORLD_HEIGHT;
 
 	public float aspectRatio;
