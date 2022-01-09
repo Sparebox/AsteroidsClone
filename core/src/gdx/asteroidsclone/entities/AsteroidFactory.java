@@ -9,8 +9,8 @@ import gdx.asteroidsclone.screens.GameScreen;
 public class AsteroidFactory {
 
     private static int asteroidInterval = 4000; // In milliseconds
-    private static final Sound LEVEL_CHANGE_SFX = Main.INSTANCE.assetManager.get(Assets.LEVEL_CHANGE);
-    private static final Sound WIN_SFX = Main.INSTANCE.assetManager.get(Assets.WON);
+    private static final Sound LEVEL_CHANGE_SFX = Main.INSTANCE.assetManager.get(Assets.LEVEL_CHANGE_SFX);
+    private static final Sound WIN_SFX = Main.INSTANCE.assetManager.get(Assets.WON_SFX);
 
     public static int asteroidCount;
 

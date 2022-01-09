@@ -1,8 +1,6 @@
 package gdx.asteroidsclone.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
@@ -74,7 +72,10 @@ public class GameScreen extends ScreenAdapter {
         else
             player = new Player(Main.INSTANCE.WORLD_WIDTH / 2, Main.INSTANCE.WORLD_HEIGHT / 2);
         entitiesToAdd.add(player);
-        Gdx.input.setCursorCatched(true);
+        if(Main.SETTINGS.getControlMode().equals("Arrow keys"))
+            Gdx.input.setCursorCatched(true);
+        else
+            Gdx.input.setCursorCatched(false);
         MenuScreen.THEME.stop();
     }
 

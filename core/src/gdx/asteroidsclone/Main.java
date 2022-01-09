@@ -66,14 +66,14 @@ public class Main extends Game {
 
 	private void loadAssets() {
 		assetManager.load(Assets.SKIN, Skin.class);
-		assetManager.load(Assets.THEME, Music.class);
-		assetManager.load(Assets.LOST, Sound.class);
-		assetManager.load(Assets.BREAK, Sound.class);
-		assetManager.load(Assets.BURN, Sound.class);
-		assetManager.load(Assets.HIT, Sound.class);
-		assetManager.load(Assets.LEVEL_CHANGE, Sound.class);
-		assetManager.load(Assets.SHOOT, Sound.class);
-		assetManager.load(Assets.WON, Sound.class);
+		assetManager.load(Assets.THEME_SFX, Music.class);
+		assetManager.load(Assets.LOST_SFX, Sound.class);
+		assetManager.load(Assets.BREAK_SFX, Sound.class);
+		assetManager.load(Assets.BURN_SFX, Sound.class);
+		assetManager.load(Assets.HIT_SFX, Sound.class);
+		assetManager.load(Assets.LEVEL_CHANGE_SFX, Sound.class);
+		assetManager.load(Assets.SHOOT_SFX, Sound.class);
+		assetManager.load(Assets.WON_SFX, Sound.class);
 		assetManager.finishLoading();
 	}
 

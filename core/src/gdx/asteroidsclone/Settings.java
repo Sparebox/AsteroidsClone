@@ -13,6 +13,7 @@ public class Settings {
     private static final String BOT_ENABLED = "botEnabled";
     private static final String RESOLUTION = "resolution";
     private static final String DIFFICULTY = "difficulty";
+    private static final String CONTROL_MODE = "controlMode";
 
     private Preferences getPrefs() {
         return Gdx.app.getPreferences(PREFS_NAME);
@@ -62,6 +63,15 @@ public class Settings {
 
     public String getDifficulty() {
         return getPrefs().getString(DIFFICULTY, "Normal");
+    }
+
+    public void setControlMode(String mode) {
+        getPrefs().putString(CONTROL_MODE, mode);
+        getPrefs().flush();
+    }
+
+    public String getControlMode() {
+        return getPrefs().getString(CONTROL_MODE, "arrows");
     }
 
     public int[] parseResolutionString(String str) {

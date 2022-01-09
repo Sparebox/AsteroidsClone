@@ -1,7 +1,6 @@
 package gdx.asteroidsclone.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL30;
@@ -9,11 +8,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import gdx.asteroidsclone.Assets;
 import gdx.asteroidsclone.Main;
@@ -30,11 +27,12 @@ public class PreferencesScreen extends ScreenAdapter {
     private Label volumeLabel;
     private Label volumeLevel;
     private Label difficultyLabel;
+    private Label controlModeLabel;
     private Slider volumeSlider;
     private TextButton backButton;
     private TextButton resetHighScores;
     private SelectBox<String> difficultyBox;
-    //private SelectBox<String> resolutionsBox;
+    private SelectBox<String> controlBox;
     private CheckBox botBox;
 
     public PreferencesScreen() {
@@ -78,23 +76,20 @@ public class PreferencesScreen extends ScreenAdapter {
             Main.SETTINGS.setBotEnabled(botBox.isChecked());
             return false;
         });
-//        resolutionsBox = new SelectBox<String>(skin);
-//        resolutionsBox.setItems("2560x1440", "1920x1080", "1280x720", "852x480");
-//        resolutionsBox.setSelected(Main.SETTINGS.getResolution());
-//        resolutionsBox.addListener((e) -> {
-//            String resolution = resolutionsBox.getSelected();
-//            int[] parsed = Main.SETTINGS.parseResolutionString(resolution);
-//            Main.SETTINGS.setResolution(resolution);
-//            Main.INSTANCE.aspectRatio = (float) parsed[0] / (float) parsed[1];
-//            Main.INSTANCE.WORLD_WIDTH = (int) (Main.INSTANCE.WORLD_HEIGHT * Main.INSTANCE.aspectRatio);
-//            return true;
-//        });
         difficultyLabel = new Label("Difficulty:", skin);
-        difficultyBox = new SelectBox<String>(skin);
+        difficultyBox = new SelectBox<>(skin);
         difficultyBox.setItems("Easy", "Normal", "Hard");
         difficultyBox.setSelected(Main.SETTINGS.getDifficulty());
         difficultyBox.addListener((e) -> {
             Main.SETTINGS.setDifficulty(difficultyBox.getSelected());
+            return false;
+        });
+        controlModeLabel = new Label("Control mode", skin);
+        controlBox = new SelectBox<>(skin);
+        controlBox.setItems("Arrow keys", "Mouse");
+        controlBox.setSelected(Main.SETTINGS.getControlMode());
+        controlBox.addListener((e) -> {
+            Main.SETTINGS.setControlMode(controlBox.getSelected());
             return false;
         });
         table.add(titleLabel).colspan(3).pad(0,0,100,0);
@@ -105,8 +100,10 @@ public class PreferencesScreen extends ScreenAdapter {
         table.row().pad(10,0,10,0);
         table.add(difficultyLabel).left();
         table.add(difficultyBox);
-//        table.add(resolutionsBox).left();
-        table.row().pad(10,0,10,0);;
+        table.row().pad(10,0,10,0);
+        table.add(controlModeLabel).left();
+        table.add(controlBox);
+        table.row().pad(10,0,10,0);
         table.add(botBox).left();
         table.row().pad(10,0,10,0);
         table.add(resetHighScores).width(150).left();

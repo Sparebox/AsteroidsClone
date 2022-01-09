@@ -20,7 +20,7 @@ public class Asteroid extends Entity {
     private static final int VERTICES = 8; // 8 is max hitbox vertex count
     private static final int INIT_VEL = 20; // Meters per second
     private static final int VEL_LIMIT = 70; // Meters per second
-    private static final Sound BREAK_SFX = Main.INSTANCE.assetManager.get(Assets.BREAK);
+    private static final Sound BREAK_SFX = Main.INSTANCE.assetManager.get(Assets.BREAK_SFX);
 
     protected Polygon shape;
 

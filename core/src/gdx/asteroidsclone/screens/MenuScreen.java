@@ -32,7 +32,7 @@ public class MenuScreen extends ScreenAdapter {
 
     public static final int BUTTON_WIDTH = 100;
     public static final int FONT_SIZE = 50;
-    public static final Music THEME = Main.INSTANCE.assetManager.get(Assets.THEME);
+    public static final Music THEME = Main.INSTANCE.assetManager.get(Assets.THEME_SFX);
 
     private static final int BG_ASTEROIDS_NUM = 20;
 

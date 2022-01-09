@@ -27,15 +27,10 @@ public class Bot extends Player {
         float angle = body.getAngle() + MathUtils.PI / 2;
         var closestBody = findClosestAsteroid();
         if(closestBody != null) {
-            if(body.getPosition().dst(closestBody.getPosition()) < 30f) {
-                Vector2 botDir = new Vector2(MathUtils.cos(angle), MathUtils.sin(angle));
-                Vector2 bodyDir = closestBody.getLinearVelocity().cpy().nor();
-                float angleBetween = botDir.angleDeg(bodyDir);
-                if(angleBetween < 30)
-                    dodge(closestBody, angle);
-            } else
-                shoot(closestBody, angle, deltaTime);
+            shoot(closestBody, angle, deltaTime);
         }
+        else if(body.getPosition().dst2(Main.INSTANCE.WORLD_WIDTH/2f, Main.INSTANCE.WORLD_HEIGHT/2f) > 30f * 30f)
+            goToCenter(angle);
         checkAreaBounds(body.getPosition().x, body.getPosition().y);
     }
 
@@ -68,7 +63,7 @@ public class Bot extends Player {
 
     private void shoot(Body target, float angle, float deltaTime) {
         Vector2[] results = aimAt(target, angle, deltaTime);
-        if(!results[0].isOnLine(results[1], 0.005f))
+        if(!results[0].isOnLine(results[1], 0.01f))
             return;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
@@ -82,23 +77,10 @@ public class Bot extends Player {
         }
     }
 
-    private void dodge(Body target, float botAngle) {
-        Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
-        float turnAngle = target.getLinearVelocity().cpy().nor().angleDeg() + MathUtils.PI / 2;
-        Vector2 turnDirection = new Vector2(MathUtils.cos(turnAngle), MathUtils.sin(turnAngle));
-        float angleDiff = botDir.angleRad(turnDirection);
-        if(angleDiff < 0)
-            body.applyTorque(-TURNING_TORQUE, true);
-        else if(angleDiff > 0)
-            body.applyTorque(TURNING_TORQUE, true);
-        if(botDir.isOnLine(turnDirection, 1f))
-            forward(botDir.scl(Player.THRUST));
-    }
-
     private Vector2[] aimAt(Body target, float botAngle, float deltaTime) {
         Vector2 botDir = new Vector2(MathUtils.cos(botAngle), MathUtils.sin(botAngle));
         float dist = body.getPosition().cpy().add(botDir.cpy().scl(5f)).dst(target.getPosition());
-        float timeToImpact = (dist * 1.7f) / Bullet.INIT_VEL;
+        float timeToImpact = (dist * 1.7f) / Bullet.INIT_VEL; // Random coefficient applied
         Vector2 targetVel = target.getLinearVelocity().cpy();
         Vector2 leadingVector = target.getPosition().cpy().add(targetVel.cpy().scl(timeToImpact + deltaTime));
         Vector2 targetVector = leadingVector.cpy().sub(body.getPosition()).nor();
@@ -109,6 +91,20 @@ public class Bot extends Player {
             body.applyTorque(TURNING_TORQUE, true);
         visualVector = leadingVector;
         return new Vector2[] {botDir, targetVector};
+    }
+
+    private void goToCenter(float angle) {
+        Vector2 center = new Vector2(Main.INSTANCE.WORLD_WIDTH / 2f, Main.INSTANCE.WORLD_HEIGHT / 2f);
+        Vector2 toCenter = center.sub(body.getPosition()).nor();
+        Vector2 direction = new Vector2(MathUtils.cos(angle), MathUtils.sin(angle));
+        if(!direction.isOnLine(toCenter, 0.1f)) {
+            if(direction.angleRad(toCenter) < 0)
+                body.applyTorque(TURNING_TORQUE, true);
+            else
+                body.applyTorque(-TURNING_TORQUE, true);
+        } else {
+            forward(direction.scl(THRUST));
+        }
     }
 
 }

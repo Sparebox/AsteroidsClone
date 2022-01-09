@@ -2,6 +2,7 @@ package gdx.asteroidsclone.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -22,10 +24,10 @@ import gdx.asteroidsclone.utils.Utils;
 public class Player extends Entity {
 
     public static final int PLAYER_SCALE = 5; // In meters
-    public static final Sound BURN_SFX = Main.INSTANCE.assetManager.get(Assets.BURN);
-    public static final Sound SHOOT_SFX = Main.INSTANCE.assetManager.get(Assets.SHOOT);
-    public static final Sound HIT_SFX = Main.INSTANCE.assetManager.get(Assets.HIT);
-    public static final Sound LOST_SFX = Main.INSTANCE.assetManager.get(Assets.LOST);
+    public static final Sound BURN_SFX = Main.INSTANCE.assetManager.get(Assets.BURN_SFX);
+    public static final Sound SHOOT_SFX = Main.INSTANCE.assetManager.get(Assets.SHOOT_SFX);
+    public static final Sound HIT_SFX = Main.INSTANCE.assetManager.get(Assets.HIT_SFX);
+    public static final Sound LOST_SFX = Main.INSTANCE.assetManager.get(Assets.LOST_SFX);
 
     protected static final float THRUST = 2e3f; // In newtons
     protected static final float TURNING_TORQUE = 5e3f; // In newton-meters
@@ -48,6 +50,7 @@ public class Player extends Entity {
     private boolean redOn = true;
     private boolean blinking;
     private boolean thrusting;
+    private boolean shooting;
 
     public Player(int x, int y) {
         this.bd = new BodyDef();
@@ -70,6 +73,31 @@ public class Player extends Entity {
         shape.setOrigin(x, y);
         shape.setPosition(x, y);
         shape.setVertices(calculateVertices());
+
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                if(button == Input.Buttons.RIGHT) {
+                    thrusting = true;
+                    burnID = BURN_SFX.play(Main.SETTINGS.getVolume());
+                    BURN_SFX.setLooping(burnID, true);
+                }
+                if(button == Input.Buttons.LEFT)
+                    shooting = true;
+                return true;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if(button == Input.Buttons.RIGHT) {
+                    thrusting = false;
+                    BURN_SFX.stop(burnID);
+                }
+                if(button == Input.Buttons.LEFT)
+                    shooting = false;
+                return true;
+            }
+        });
     }
 
     @Override
@@ -80,24 +108,39 @@ public class Player extends Entity {
         float y = body.getPosition().y;
         float angle = body.getAngle() + MathUtils.PI / 2;
         Vector2 thrustVector = new Vector2(THRUST * MathUtils.cos(angle), THRUST * MathUtils.sin(angle));
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            forward(thrustVector);
-            thrusting = true;
-        } else
-            thrusting = false;
+        if(Main.SETTINGS.getControlMode().equals("Arrow keys")) {
+            if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                forward(thrustVector);
+                thrusting = true;
+            } else
+                thrusting = false;
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            burnID = BURN_SFX.play(Main.SETTINGS.getVolume());
-            BURN_SFX.setLooping(burnID, true);
-        } else if(!thrusting)
-            BURN_SFX.stop(burnID);
+            if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                burnID = BURN_SFX.play(Main.SETTINGS.getVolume());
+                BURN_SFX.setLooping(burnID, true);
+            } else if(!thrusting)
+                BURN_SFX.stop(burnID);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            body.applyTorque(TURNING_TORQUE,true);
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            body.applyTorque(-TURNING_TORQUE,true);
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            shoot(angle);
+            if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+                body.applyTorque(TURNING_TORQUE,true);
+            if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+                body.applyTorque(-TURNING_TORQUE,true);
+            if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                shoot(angle);
+            }
+        } else {
+            Vector3 temp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+            temp = gameScreen.getGameCamera().unproject(temp);
+            Vector2 mousePos = new Vector2(temp.x, temp.y);
+            Vector2 lookDirection = mousePos.sub(body.getPosition()).nor();
+            if(thrustVector.cpy().nor().angleRad(lookDirection) < 0)
+                body.applyTorque(TURNING_TORQUE, true);
+            else
+                body.applyTorque(-TURNING_TORQUE, true);
+            if(thrusting)
+                forward(thrustVector);
+            if(shooting)
+                shoot(angle);
         }
         checkAreaBounds(x, y);
     }
