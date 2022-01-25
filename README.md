@@ -6,7 +6,7 @@ A clone of the 1979 game *Asteroids* by **Atari** written in Java
 - Box2D physics engine
 
 ## How to run
-1. Go to releases and download the Windows executable zip file.
+1. Go to releases and download the Windows executable zip file
 2. Extract it
 3. Launch the game with the executable file
 
