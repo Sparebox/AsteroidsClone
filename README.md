@@ -11,7 +11,7 @@ A clone of the 1979 game *Asteroids* by **Atari** written in Java
 3. Launch the game with the executable file
 
 ## How to play
-You can choose between mouse and arrow keys as control input in the options.
+You can choose between the mouse and arrow keys as control input in the options.
 ### Keyboard controls
 - Up arrow: go forward
 - Left arrow: turn left
