@@ -19,6 +19,6 @@ You can choose between mouse and arrow keys as control input in the options.
 - Spacebar: shoot
 
 ### Mouse controls
-- Left click: fire
+- Left click: shoot
 - Right click: go forward
 - Point the cursor where you want to go or shoot
